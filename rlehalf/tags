@@ -1,0 +1,24 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Compare	halfman.h	/^class Compare{$/;"	c
+HuffmanNode	halfman.h	/^	HuffmanNode(int f, char c){$/;"	f	class:HuffmanNode
+HuffmanNode	halfman.h	/^class HuffmanNode{$/;"	c
+buildHuffmanTree	halfman.h	/^HuffmanNode* buildHuffmanTree(string str){$/;"	f
+ch	halfman.h	/^	char ch; \/\/ 节点代表的字符$/;"	m	class:HuffmanNode
+encodeHelper	halfman.h	/^void encodeHelper(HuffmanNode* root, string code, unordered_map<char, string>& code_map){$/;"	f
+freq	halfman.h	/^	int freq; \/\/ 节点的频率$/;"	m	class:HuffmanNode
+huffmanDecode	halfman.h	/^string huffmanDecode(string str, HuffmanNode* root){$/;"	f
+huffmanEncode	halfman.h	/^unordered_map<char, string> huffmanEncode(string str){$/;"	f
+left	halfman.h	/^	HuffmanNode* left; \/\/ 左子树指针$/;"	m	class:HuffmanNode
+main	halfmantest.cpp	/^int main(){$/;"	f
+main	rlehalf.cpp	/^int main (){$/;"	f
+main	rletest.cpp	/^int main () {$/;"	f
+operator ()	halfman.h	/^	bool operator()(HuffmanNode* a, HuffmanNode* b){$/;"	f	class:Compare
+readpixel	readimg.h	/^int readpixel (char * pixel, char *filename) {$/;"	f
+right	halfman.h	/^	HuffmanNode* right; \/\/ 右子树指针$/;"	m	class:HuffmanNode
+rleDecode	rlenew.h	/^int rleDecode(const char *code, int n, char* res){$/;"	f
+rleEncode	rlenew.h	/^int rleEncode (const char* data , int n, char * code) {$/;"	f
