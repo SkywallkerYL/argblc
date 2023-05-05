@@ -20,10 +20,11 @@ int main (){
 	char filename[] = "./imgsrc/r.txt";
 	uint8_t *data = (uint8_t *) malloc(dataMaxSize * sizeof(uint8_t)); 
 	uint8_t *originpix = data;
-	int size = readpixel(originpix,filename);
-	if(size == -1) return 0;
+	int size1 = readpixel(originpix,filename);
+	if(size1 == -1) return 0;
+//	printf("%d\n",data[217]);
 	/************RLE编码***********/
-	int n = size; //sizeof(data )/sizeof(data[0]) - 1;
+	int n = size1; //sizeof(data )/sizeof(data[0]) - 1;
 	uint8_t code[2*n];
 	printf ("origin size: %d\n", n );
 	int m = rleEncode(data,n,code);
@@ -47,28 +48,46 @@ int main (){
 	else printf ("rle decode is wrong\n");
 
 	/************HALFMAN 目前还有问题*************/
-	char forhalfres[l+1];
-	for(int i = 0 ; i < l +1 ; i++){
-		forhalfres[i] =(char) res[l];
-	}
-	forhalfres[l] = '\0';
-	// halfman 
-	printf("halfman begin \n");
-	string str(forhalfres,forhalfres+l);// = "hello world"; // 原始字符串
-	printf("Halfman hhh\n");
-    unordered_map<uint8_t, string> code_map = huffmanEncode(str); // 哈夫曼编码
-    string encoded_str = "";
-    for(uint8_t c : str){
-        encoded_str += code_map[c]; // 将编码后的字符拼接成字符串
+	//uint8_t data[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    int size = m;//sizeof(code) / sizeof(code[0]);
+	if(size!= m) printf ("something maybe wrong!!! size:%d m:%d\n",size,m);
+    // 计算频率
+    unordered_map<uint8_t, int> freq;
+    for (int i = 0; i < size; i++) {
+        freq[code[i]]++;
     }
-    HuffmanNode* root = buildHuffmanTree(str); // 构建哈夫曼树
-    string decoded_str = huffmanDecode(encoded_str, root); // 哈夫曼解码
-    // 输出结果
-    //cout << "Original string: " << str << endl;
-    //cout << "Encoded string: " << encoded_str << endl;
-    //cout << "Decoded string: " << decoded_str << endl;
+
+    // 建立哈夫曼树和编码表
+    Node *root = buildHuffmanTree(freq);
+    unordered_map<uint8_t, string> table;
+    buildHuffmanTable(root, table, "");
+
+    // 哈夫曼编码
+    string encoded = huffmanEncode(code, size, table);
+    //cout << "Encoded: " << encoded << endl;
+
+    // 哈夫曼解码
+    string decoded = huffmanDecode(encoded, root);
+	bool halfflag = 1;
+	if(decoded.size()!= size) printf ("something maybe wrong!!! size:%ld m:%d\n",decoded.size(),m);
+	for (int i = 0 ; i < decoded.size();i++) {
+		//printf("%d half:%d  code:%d\n",i,(uint8_t)decoded[i],code[i]);
+		if((uint8_t)decoded[i] != (uint8_t)code[i]){
+			halfflag = 0;
+			printf("%d half:%d  code:%d\n",i,(uint8_t)decoded[i],code[i]);
+			break;
+		}
+	}
+	if(halfflag) {
+		printf("haflman is right\n");
+	}else printf ("halfman is wrong\n");
+   // cout << "Decoded: ";
+   // for (int i = 0; i < decoded.size(); i++) {
+   //     cout << (int)decoded[i] << " ";
+   // }
+   // cout << endl;
 	printf("rle encode size = %d * %d = %d bits\n",m,8,m*8);
-	printf("halfman encode size = %ld bits\n",encoded_str.size());
+	printf("halfman encode size = %ld bits\n",encoded.size());
 
 	return 0;
 }

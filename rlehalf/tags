@@ -4,21 +4,21 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-Compare	halfman.h	/^class Compare{$/;"	c
-HuffmanNode	halfman.h	/^	HuffmanNode(int f, char c){$/;"	f	class:HuffmanNode
-HuffmanNode	halfman.h	/^class HuffmanNode{$/;"	c
-buildHuffmanTree	halfman.h	/^HuffmanNode* buildHuffmanTree(string str){$/;"	f
-ch	halfman.h	/^	char ch; \/\/ 节点代表的字符$/;"	m	class:HuffmanNode
-encodeHelper	halfman.h	/^void encodeHelper(HuffmanNode* root, string code, unordered_map<char, string>& code_map){$/;"	f
-freq	halfman.h	/^	int freq; \/\/ 节点的频率$/;"	m	class:HuffmanNode
-huffmanDecode	halfman.h	/^string huffmanDecode(string str, HuffmanNode* root){$/;"	f
-huffmanEncode	halfman.h	/^unordered_map<char, string> huffmanEncode(string str){$/;"	f
-left	halfman.h	/^	HuffmanNode* left; \/\/ 左子树指针$/;"	m	class:HuffmanNode
-main	halfmantest.cpp	/^int main(){$/;"	f
+Node	halfman.h	/^    Node(uint8_t data, int freq) {$/;"	f	struct:Node
+Node	halfman.h	/^struct Node {$/;"	s
+buildHuffmanTable	halfman.h	/^void buildHuffmanTable(Node *root, unordered_map<uint8_t, string> &table, string code) {$/;"	f
+buildHuffmanTree	halfman.h	/^Node *buildHuffmanTree(const unordered_map<uint8_t, int> &freq) {$/;"	f
+data	halfman.h	/^    uint8_t data; \/\/ 数据$/;"	m	struct:Node
+dataMaxSize	rlehalf.cpp	/^int dataMaxSize = 0x7fffffff;$/;"	v
+freq	halfman.h	/^    int freq; \/\/ 频率$/;"	m	struct:Node
+huffmanDecode	halfman.h	/^string huffmanDecode(const string &data, Node *root) {$/;"	f
+huffmanEncode	halfman.h	/^string huffmanEncode(const uint8_t *data, int size, const unordered_map<uint8_t, string> &table) {$/;"	f
+left	halfman.h	/^    Node *left, *right; \/\/ 左右子节点$/;"	m	struct:Node
+main	halfmantest.cpp	/^int main() {$/;"	f
 main	rlehalf.cpp	/^int main (){$/;"	f
 main	rletest.cpp	/^int main () {$/;"	f
-operator ()	halfman.h	/^	bool operator()(HuffmanNode* a, HuffmanNode* b){$/;"	f	class:Compare
-readpixel	readimg.h	/^int readpixel (char * pixel, char *filename) {$/;"	f
-right	halfman.h	/^	HuffmanNode* right; \/\/ 右子树指针$/;"	m	class:HuffmanNode
-rleDecode	rlenew.h	/^int rleDecode(const char *code, int n, char* res){$/;"	f
-rleEncode	rlenew.h	/^int rleEncode (const char* data , int n, char * code) {$/;"	f
+operator <	halfman.h	/^    bool operator<(const Node &other) const {$/;"	f	struct:Node
+readpixel	readimg.h	/^int readpixel (uint8_t *  pixel, char *filename) {$/;"	f
+right	halfman.h	/^    Node *left, *right; \/\/ 左右子节点$/;"	m	struct:Node
+rleDecode	rlenew.h	/^int rleDecode(const uint8_t *code, int n, uint8_t* res){$/;"	f
+rleEncode	rlenew.h	/^int rleEncode (const uint8_t* data , int n, uint8_t * code) {$/;"	f
