@@ -6,7 +6,9 @@
 #include <memory.h>
 #include <assert.h>
 #include "rgbTileProc.h"
-
+#include "rle.h"
+#include "lz77.h"
+int halforiginsize = 1024;
 static int g_nTileWidth = 0;
 static int g_nTileHeight = 0;
 
@@ -29,7 +31,14 @@ int argb2tile(const unsigned char* pClrBlk, unsigned char* pTile, int* pTileSize
 {
 	assert(g_nTileWidth > 0 && g_nTileHeight > 0);
 	*pTileSize = g_nTileWidth * g_nTileHeight * 4;
-	memcpy(pTile, pClrBlk, *pTileSize);
+	
+	//memcpy(pTile, pClrBlk, *pTileSize);
+	//unsigned char rlepClr[(*pTileSize*8)];
+	rlecompress(pClrBlk,pTileSize,pTile);
+	//lz77Compress(pClrBlk,pTileSize,pTile);
+	//rlecompress(pClrBlk,pTileSize,rlepClr);
+	//lz77Compress(rlepClr,pTileSize,pTile);
+	//halfmanCompress(rlepClr,pTileSize,pTile);
 	return 0;
 }
 
@@ -44,6 +53,16 @@ int argb2tile(const unsigned char* pClrBlk, unsigned char* pTile, int* pTileSize
 */
 int tile2argb(const unsigned char* pTile, int nTileSize, unsigned char* pClrBlk)
 {
-	memcpy(pClrBlk, pTile, nTileSize);
+	rledecompress(pTile ,pClrBlk, nTileSize);
+	//unsigned char lz77de[1024];
+	//int size = lz77Decompress(pTile,nTileSize,lz77de);
+	//rledecompress(lz77de,pClrBlk,size);
+	//memcpy(pClrBlk, pTile, nTileSize);
+	//unsigned char halfmandecompress[4096]; 
+	
+	//int halfdecodesize = halfmanDecompress(pTile,halfmandecompress,nTileSize,root);
+
+	//rledecompress(halfmandecompress,pClrBlk, halfdecodesize);
+	
 	return 0;
 }
