@@ -8,13 +8,16 @@ jlsencode top
 Sequantial logic 
 ****/
 
-class jpeglsencode extends Module with COMMON {
+class jpeglsdecode extends Module with COMMON {
   val io = IO(new Bundle {
     // read pix 
-    // write bit 
-    val axi = new AXIIO 
+    // read bit 
+    val axi = new AXIIO
+    // read Pix  write Pix 
+    val pixaxi = new AXIIO
+
     //input 
-    val econtrol = new controlIO
+    val dcontrol = new controlIO
     val len = Output(UInt(AXIADDRWIDTH.W))
   })
 
@@ -135,18 +138,17 @@ class jpeglsencode extends Module with COMMON {
   val defaultaddr = x+y*X_SIZE.U
   // Module inst 
   val getnextsample = Module(new GetNextSample)
+  val updateinst    = Module(new updateSample)
   val getq          = Module(new getQ) 
   val pre           = Module(new predict)
-  val quanti        = Module(new errvalquanti)
-  val rxcompute     = Module(new computeRx)
-  val pxcompute     = Module(new computePx)
-  val modrange      = Module(new ModRange)
-  val lg            = Module(new LG) 
-  val bitwrite      = Module(new BitWriter)
-  val golomb        = Module(new GolombCoding)
 
-  val regularmode   = Module(new RegularMode)
-  val runmode       = Module(new RunMode)
+  val rxcompute     = Module(new computeRx)
+  val lg            = Module(new LG) 
+  val bitreader     = Module(new BitReader)
+  val golomb        = Module(new GolombdeCoding)
+
+  val regularmode   = Module(new RegularModeDecoding)
+  val runmode       = Module(new RunModedecoding)
 
   val runmodeflag = RegInit(0.U(1.W))
   val flushflag   = RegInit(0.U(1.W))
@@ -159,8 +161,8 @@ class jpeglsencode extends Module with COMMON {
 
   //getnextsample 
   getnextsample.io.sample.update := false.B 
-  getnextsample.io.getpix.inpix := io.axi.rdata 
-  getnextsample.io.getpix.pixvalid := io.axi.rvalid
+  getnextsample.io.getpix.inpix := io.pixaxi.rdata 
+  getnextsample.io.getpix.pixvalid := io.pixaxi.rvalid
   getnextsample.io.inaddr.x := x 
   getnextsample.io.inaddr.y := y 
       
@@ -173,28 +175,23 @@ class jpeglsencode extends Module with COMMON {
   pre.io.a := getnextsample.io.sample.pix.Ra 
   pre.io.b := getnextsample.io.sample.pix.Rb 
   pre.io.c := getnextsample.io.sample.pix.Rc 
-  //quanti
-  quanti.io.quanti <> regularmode.io.quanti
-  //rxcompute 
-  rxcompute.io.predict <> runmode.io.predict 
-  //pxcomput
-  pxcompute.io.predict <> regularmode.io.predict
+  //Rx 
+  rxcompute.io.predict <> regularmode.io.predict 
   //modrange
-  modrange.io.modrange <> regularmode.io.modrange
   //lg 
   lg.io.lg <> regularmode.io.lg 
   //bitwrite 
-  bitwrite.io.writeaddr := "x80000000".U 
-  bitwrite.io.start := false.B 
-  bitwrite.io.control.flag   := false.B 
-  bitwrite.io.control.opcode := 0.U    
-  bitwrite.io.control.bit    := 0.U    
-  bitwrite.io.control.bits   := 0.U    
-  bitwrite.io.control.number := 0.U    
-  io.axi <>  bitwrite.io.axi 
-  io.axi.arvalid := getnextsample.io.getpix.addrvalid
-  io.axi.araddr  := getnextsample.io.outaddr.x +getnextsample.io.outaddr.y *X_SIZE.U
-  io.len := bitwrite.io.outaddr
+  bitreader.io.readaddr := "x80000000".U 
+  bitreader.io.control.start := false.B 
+  bitreader.io.reader.flag   := false.B 
+  bitreader.io.reader.opcode := 0.U        
+  bitreader.io.reader.number := 0.U    
+  io.axi <>  bitreader.io.axi 
+  io.pixaxi <> updateinst.io.axi
+  io.pixaxi.arvalid := getnextsample.io.getpix.addrvalid
+  io.pixaxi.araddr  := getnextsample.io.outaddr.x +getnextsample.io.outaddr.y *X_SIZE.U
+  //io.pixaxi.rready  := 
+  io.len := bitreader.io.outaddr
   //golomb 
   golomb.io.golomb <> regularmode.io.golomb
   // 
@@ -219,6 +216,12 @@ class jpeglsencode extends Module with COMMON {
   inN  := runmode.io.infoout.N 
   inNn := runmode.io.infoout.Nn
   regularmode.io.rcontrol.start := false.B 
+
+  updateinst.io.inaddr.x := x 
+  updateinst.io.inaddr.y := y 
+  updateinst.io.inpix := regularmode.io.outpix
+  updateinst.io.control <> regularmode.io.ucontrol
+
   //runmode 
   runmode.io.infoin.A  :=  outA 
   runmode.io.infoin.N  :=  outN 
@@ -235,40 +238,46 @@ class jpeglsencode extends Module with COMMON {
   xyupdate := runmode.io.updateen
 
   runmode.io.sample <> getnextsample.io.sample
-  runmode.io.getpix.inpix := Ix 
-  runmode.io.getpix.pixvalid := false.B 
+  //runmode.io.getpix.inpix := Ix 
+  //runmode.io.getpix.pixvalid := false.B 
 
   //run mode     golomb
-  golomb.io.control <> bitwrite.io.control
-  when(runmode.io.runwrite){
-    runmode.io.bitwrite <> bitwrite.io.control
+  golomb.io.reader <> bitreader.io.reader
+  
+  //golomb.io.reader <> bitreader.io.reader
+  when(runmode.io.runread){
+    runmode.io.reader <> bitreader.io.reader
   }
   runmode.io.rcontrol.start := false.B 
   //other default 
   //quanti
-  runmode.io.quanti.out := quanti.io.quanti.out 
-  runmode.io.modrange.out := modrange.io.modrange.out
+  //runmode.io.quanti.out := quanti.io.quanti.out 
+  //runmode.io.modrange.out := modrange.io.modrange.out
   runmode.io.lg.k := lg.io.lg.k 
   runmode.io.lg.lcontrol.finish := lg.io.lg.lcontrol.finish
         //golomb 
+  runmode.io.golomb.value := golomb.io.golomb.value
   runmode.io.golomb.gcontrol.finish := golomb.io.golomb.gcontrol.finish
+  runmode.io.ucontrol.finish := updateinst.io.control.finish
   //golomb.io.golomb <> runmode.io.golomb
-  runmode.io.bitwrite.writing := bitwrite.io.control.writing
+  runmode.io.reader.finish := bitreader.io.reader.finish
+  runmode.io.reader.bits := bitreader.io.reader.bits
+  runmode.io.reader.bit := bitreader.io.reader.bit
   runmode.io.runreset := false.B 
-  io.econtrol.finish := false.B
+  io.dcontrol.finish := false.B
 
   
 
 
 
-  val idle :: updateaddr :: updatesample :: getpix :: runmoding :: regularmoding :: flush :: finish :: Nil = Enum(8) 
-  //  0    :: 1          :: 2            :: 3      :: 4         :: 5             :: 6     :: 7      ::
+  val idle :: updateaddr :: updatesample :: updateD :: runmoding :: regularmoding :: flush :: finish :: Nil = Enum(8) 
+  //  0    :: 1          :: 2            :: 3       :: 4         :: 5             :: 6     :: 7      ::
   val state = RegInit(idle)
 
 
   switch(state){
     is(idle){
-      when(io.econtrol.start){
+      when(io.dcontrol.start){
         state := updatesample 
         x := 0.U 
         y := 0.U 
@@ -283,7 +292,7 @@ class jpeglsencode extends Module with COMMON {
         Nn(0) := 0.S 
         Nn(1) := 0.S 
         runmode.io.rcontrol.start := true.B 
-        bitwrite.io.start := true.B 
+        bitreader.io.control.start := true.B 
       }
     }
     is(updateaddr){
@@ -301,36 +310,21 @@ class jpeglsencode extends Module with COMMON {
       }.otherwise{
         x := x + 1.U 
       }
-      //}
-      //state := getErrval
     }
     is(updatesample){
       getnextsample.io.sample.update := true.B 
       getnextsample.io.inaddr.x := x 
       getnextsample.io.inaddr.y := y 
-      io.axi.arvalid := getnextsample.io.getpix.addrvalid
-      io.axi.araddr  := getnextsample.io.outaddr.x +getnextsample.io.outaddr.y *X_SIZE.U
+      io.pixaxi.arvalid := getnextsample.io.getpix.addrvalid
+      io.pixaxi.araddr  := getnextsample.io.outaddr.x +getnextsample.io.outaddr.y *X_SIZE.U
       //getnextsample.io.getpix.pixvalid := 
       when(getnextsample.io.sample.getvalid){
         getnextsample.io.sample.update := false.B 
-        state := getpix
+        state := updateD
       }
     }
-    is(getpix){
-      
-      io.axi.arvalid := true.B 
-      when(runmodeflag === 1.U){
-        io.axi.araddr := runmode.io.outaddr.x + runmode.io.outaddr.y*X_SIZE.U 
-      }.otherwise{
-        io.axi.araddr := defaultaddr
-      }
-      when(io.axi.rvalid){
-        Ix := io.axi.rdata
-        when(runmodeflag === 1.U) {
-          runmode.io.getpix.pixvalid := true.B 
-          state := runmoding 
-          runmode.io.getpix.inpix := io.axi.rdata 
-        }.elsewhen(ABSH(D1) <= 0.S && ABSH(D2) <= 0.S && ABSH(D3) <= 0.S){
+    is(updateD){
+      when(ABSH(D1) <= 0.S && ABSH(D2) <= 0.S && ABSH(D3) <= 0.S){
           state := runmoding
           //runmode.io.rcontrol.start := true.B 
           runmodeflag := 1.U 
@@ -338,30 +332,21 @@ class jpeglsencode extends Module with COMMON {
           state := regularmoding
           //regularmode.io.rcontrol.start := true.B 
         }
-      }
-      when(runmodeflag === 1.U){
-        //quanti
-        quanti.io.quanti <> runmode.io.quanti
-        //modrange
-        modrange.io.modrange <> runmode.io.modrange
-        //lg 
-        lg.io.lg <> runmode.io.lg 
-        //golomb 
-        golomb.io.golomb <> runmode.io.golomb
-      }
     }
     is(runmoding){
       runmode.io.rcontrol.start := true.B 
-      //quanti
-      quanti.io.quanti <> runmode.io.quanti
-      //modrange
-      modrange.io.modrange <> runmode.io.modrange
       //lg 
       lg.io.lg <> runmode.io.lg 
       //golomb 
       golomb.io.golomb <> runmode.io.golomb
       //get nextsample 
       getnextsample.io.inaddr <> runmode.io.outaddr
+      //updatesample 
+      updateinst.io.inaddr <> runmode.io.outaddr 
+      updateinst.io.inpix := runmode.io.outpix
+      updateinst.io.control <> runmode.io.ucontrol
+
+
       chooseQ := runmode.io.outQ
       when(runmode.io.rcontrol.finish === true.B){
         runmode.io.rcontrol.start := false.B 
@@ -370,8 +355,6 @@ class jpeglsencode extends Module with COMMON {
         y := runmode.io.outaddr.y
         //flushflag := 1.U  
         runmodeflag := 0.U 
-      }.elsewhen(runmode.io.getpix.addrvalid){
-        state := getpix 
       }
     }
     is(regularmoding){
@@ -393,20 +376,20 @@ class jpeglsencode extends Module with COMMON {
       }
     }
     is(flush){
-      bitwrite.io.control.flag := true.B 
-      bitwrite.io.control.opcode := 3.U 
+      bitreader.io.reader.flag := true.B 
+      bitreader.io.reader.opcode := 3.U 
       flushflag := 0.U 
-      when(bitwrite.io.control.writing){
+      when(bitreader.io.reader.finish){
         state := finish 
       }
       runmode.io.runreset := true.B 
     }
     is(finish){
       state := idle 
-      io.econtrol.finish := true.B 
+      io.dcontrol.finish := true.B 
     }
   }
-  //for read pix    // get sample || get pix 
+  //for read bit    // get sample || get pix 
   val arread :: rread :: Nil = Enum(2)
   val readstate = RegInit(arread)
 
@@ -423,24 +406,42 @@ class jpeglsencode extends Module with COMMON {
       }
     }
   }  
+  //for read pix    // get sample 
+  //val arread :: rread :: Nil = Enum(2)
+  val readstate1 = RegInit(arread)
+
+  switch(readstate1){
+    is(arread){
+      when(io.pixaxi.arready && io.pixaxi.arvalid){
+        readstate1 := rread 
+      }
+    }
+    is(rread){
+      io.pixaxi.rready := true.B  
+      when(io.pixaxi.rvalid){
+        readstate1 := arread
+      }
+    }
+  }  
+
 
   val awwrite :: wwrite :: wresp :: Nil = Enum(3)
   val writestate = RegInit(awwrite)
   switch(writestate){
     is(awwrite){
-      when(io.axi.awvalid && io.axi.awready){
+      when(io.pixaxi.awvalid && io.pixaxi.awready){
         writestate := wwrite
       }
     }
     is(wwrite){
-      io.axi.wvalid := true.B 
-      when(io.axi.wready ){
+      io.pixaxi.wvalid := true.B 
+      when(io.pixaxi.wready ){
         writestate := wresp 
       }
     }
     is(wresp){
-      io.axi.bready := true.B 
-      when(io.axi.bvalid){
+      io.pixaxi.bready := true.B 
+      when(io.pixaxi.bvalid){
         writestate := awwrite
       }
     }
@@ -453,18 +454,20 @@ class jpeglsencode extends Module with COMMON {
 
 
 
-class jpeglsencodesimtop extends Module with COMMON {
+class jpeglsdecodesimtop extends Module with COMMON {
   val io = IO(new Bundle {
     // read pix 
     // write bit 
     //input 
-    val econtrol = new controlIO
+    val dcontrol = new controlIO
     val len = Output(UInt(AXIADDRWIDTH.W)) 
   })
-  val jls = Module(new jpeglsencode)
-  val ram = Module(new  ramtop)
-  jls.io.axi <> ram.io.axi 
-  jls.io.econtrol <> io.econtrol 
+  val jls = Module(new jpeglsdecode)
+  val bitram = Module(new  ramtop)
+  val pixram = Module(new  ramtop)
+  jls.io.axi <> bitram.io.axi 
+  jls.io.pixaxi <> pixram.io.axi 
+  jls.io.dcontrol <> io.dcontrol 
   io.len := jls.io.len
   //io.econtrol.finish :=  jls.io.econtrol.finish
 }

@@ -47,9 +47,9 @@ trait COMMON{
 
   //数据位宽
   val COLORWIDTH      = 8
-  val SIGNWIDTH       = 9
-  val SIGNWIDTH1      = 10
-  val TEXTWIDTH       = 12
+  val SIGNWIDTH       = 10
+  val SIGNWIDTH1      = 11
+  val TEXTWIDTH       = 13
 
   //地址位宽
   val XADDRWIDTH = log2Ceil(X_SIZE)
