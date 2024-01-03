@@ -14,13 +14,18 @@ unsigned char data[] = {
 		(unsigned char)8	,(unsigned char)52    ,(unsigned char)125   ,(unsigned char)93      ,
 		(unsigned char)29	,(unsigned char)90    ,(unsigned char)96    ,(unsigned char)237 
 	};
+unsigned char data1[16];
 unsigned char coded[1600];
 
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     //printf("addr:0x%016x data:0x%016x mask:0b%02b \n",waddr,wdata,wmask);
     //char c = wdata&0xff;
     //uint64_t write_data = wdata;
-    coded[waddr] = (unsigned char)(wdata & 0xffull);
+    if(waddr >= 0x80000000){
+        coded[waddr-0x80000000] = (unsigned char)(wdata & 0xffull);
+    }else {
+        data1[waddr] =  (unsigned char)(wdata & 0xffull);
+    }
     //for (char i = 0; i < 8; i++)
     //{
         //判断mask的i位是否为1,从地到高。
@@ -35,7 +40,12 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
 }
 extern "C" void pmem_read(long long raddr, long long *rdata){
     //printf("addr:0x%016x data:0x%016x\n",waddr,wdata);
-    *rdata = (long long) (unsigned char)data[raddr];
+    if(raddr >= 0x80000000){
+        *rdata = (long long) (unsigned char)coded[raddr-0x80000000];
+    }else{
+        *rdata = (long long) (unsigned char)data[raddr];
+    }
+    
     //printf("addr:0x%016x data:%d read:%d\n",raddr,*rdata,data[raddr]);
 }
 

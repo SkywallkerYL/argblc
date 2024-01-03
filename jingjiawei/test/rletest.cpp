@@ -26,9 +26,10 @@ int main () {
 	unsigned char * decomressed = (unsigned char *) malloc((originsize));   
     rledecompress(compressed,decomressed,*size);
 	for (int i = 0; i < originsize ; i ++) {
+		printf("%d \n",decomressed[i]);
 		if(decomressed[i] != data[i]) {
 			printf ("rle wrong !\n");
-			break;
+			//break;
 		}
 	}
 	delete size ;

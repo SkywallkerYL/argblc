@@ -26,14 +26,14 @@ int main (){
 	/************RLE编码***********/
 	int n = size1; //sizeof(data )/sizeof(data[0]) - 1;
 	uint8_t code[2*n];
-	printf ("origin size: %d\n", n );
+	printf ("origin size: %d bytes\n", n );
 	int m = rleEncode(data,n,code);
-	printf ("rleEncode size: %d\n",m);
+	printf ("rleEncode size: %d bytes\n",m);
 	/***********RLE解码************/
 	uint8_t res[n+1];
 	int l = rleDecode(code,m,res);
 	res [l] = (uint8_t)'\0';
-	printf ("rleDecode size: %d\n",l);
+	printf ("rleDecode size: %d bytes\n",l);
 	/************验证***********/
 	bool sameflag = 1;
 	for(int i = 0 ; i < l ; i ++){

@@ -9,20 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <set>
-#include <iostream>
-#include <fstream>
+
 #include <cstdlib>
-#include <ctime>
+#include <cstdint>
 #include <cstdio>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <sstream>
-#include <random>
-#include <cstring>
+
 const int MAX_SIZE_C = 1024;
 using namespace std;
 /*
@@ -38,13 +29,16 @@ int rleEncode (const unsigned char* data , int n, unsigned char * code) {
 	for(int i = 0; i < n ; i ++ ){
 		unsigned char c = data[i];
 		//printf ("%c ",c);
-		uint8_t count = 0;    // 0 的时候表示1个，这样子就能计数128个了
+		//为了能够对rle的数据也进行压缩，count从0开始，这样子经过rle处理过的数据
+		//第一个数据就不可能是0，这样子来判断新的数据，是否是再次压缩的，但这样子就只能计数127个了。
+		//注意 rletest.cpp 不能用，因为对8*8的块作了特殊处理。
+		uint8_t count = 1;    // 0 的时候表示1个，这样子就能计数128个了
 		while ((i < n - 1) && (data[i] == data[i+1]) &&( count < 127)){
 			count ++ ;
 			i ++ ;
 		}
 		//printf ("i:%d\n",i);
-		if (count >= 1) {
+		if (count >= 2) {
 			//printf ("posr: %d %d\n", k,count );
 			code[k++] = count | 0x80;
 			code[k++] = c ;
@@ -92,13 +86,13 @@ int rleDecode(const unsigned char *code, int n, unsigned char * res){
 			
 			i++;
 			//printf ("pos: %d  ", i );
-			for(int j = 0; j <= count; j++){
+			for(int j = 1; j <= count; j++){
 				res[k++] = code[i];
 			} 
 		}else {
 			i++;
 			//非重复数据 直接往后读count+1个字符
-			for(int j = 0 ; j <= count; j++){
+			for(int j = 1 ; j <= count; j++){
 				res[k++] = code[i];
 		//		printf("%d ",i);
 				i++;

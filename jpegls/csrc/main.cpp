@@ -11,9 +11,9 @@ int main(int argc , char* argv[]) {
 	reset(5);
 #if TESTMODULE == 1
 	encodetest();
-#elif TESTMODULE == 12 
+#elif TESTMODULE == 2 
 	//printf("jjjjj\n");
-	toptest();
+	decodetest();
 #endif 
 	sim_exit();
 	return 0;

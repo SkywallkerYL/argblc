@@ -98,7 +98,7 @@ class BitReader extends Module with COMMON {
           //bit := io.reader.bit 
         }.elsewhen(io.reader.opcode === 2.U){
           readstate   := readBits
-          bits    := io.reader.bits 
+          bits    := 0.U
           reversebits :=  Reverse(io.reader.bits)
           number  := io.reader.number 
         }.elsewhen(io.reader.opcode === 3.U){

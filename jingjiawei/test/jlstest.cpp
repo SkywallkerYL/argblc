@@ -89,18 +89,18 @@ int main () {
 }
 #else
 int main () {
-	//unsigned char data[] = {
-	//				(unsigned char)0  ,(unsigned char)0  ,(unsigned char)90 ,(unsigned char)74 ,
-	//				(unsigned char)68 ,(unsigned char)50 ,(unsigned char)43 ,(unsigned char)205,
-	//				(unsigned char)64 ,(unsigned char)145,(unsigned char)145,(unsigned char)145,
-	//				(unsigned char)100,(unsigned char)145,(unsigned char)145,(unsigned char)145
-	//};
 	unsigned char data[] = {
-					(unsigned char)6	,(unsigned char)0  ,(unsigned char)13 ,(unsigned char)217,
-					(unsigned char)6	,(unsigned char)233,(unsigned char)187,(unsigned char)212,
-					(unsigned char)227	,(unsigned char)0  ,(unsigned char)117,(unsigned char)214,
-					(unsigned char)125	,(unsigned char)154,(unsigned char)42 ,(unsigned char)189
+					(unsigned char)0  ,(unsigned char)0  ,(unsigned char)90 ,(unsigned char)74 ,
+					(unsigned char)68 ,(unsigned char)50 ,(unsigned char)43 ,(unsigned char)205,
+					(unsigned char)64 ,(unsigned char)145,(unsigned char)145,(unsigned char)145,
+					(unsigned char)100,(unsigned char)145,(unsigned char)145,(unsigned char)145
 	};
+	//unsigned char data[] = {
+	//				(unsigned char)6	,(unsigned char)0  ,(unsigned char)13 ,(unsigned char)217,
+	//				(unsigned char)6	,(unsigned char)233,(unsigned char)187,(unsigned char)212,
+	//				(unsigned char)227	,(unsigned char)0  ,(unsigned char)117,(unsigned char)214,
+	//				(unsigned char)125	,(unsigned char)154,(unsigned char)42 ,(unsigned char)189
+	//};
 	//unsigned char data[] = {
 	//				(unsigned char)64 ,(unsigned char)211,(unsigned char)0  ,(unsigned char)0  ,
 	//				(unsigned char)66 ,(unsigned char)171,(unsigned char)224,(unsigned char)55 ,

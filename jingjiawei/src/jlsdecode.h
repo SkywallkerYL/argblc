@@ -40,9 +40,9 @@ int getBitReaderLength (BitReader_t *pbr) {
 //
 //
 void readBit (BitReader_t *pbr, bool * bit ) {
-	pbr->byte &= pbr->bitmask;
+	unsigned char localbyte = pbr->byte & pbr->bitmask;
     pbr->bitmask >>= 1;
-	if(pbr->byte != 0 ) {
+	if(localbyte != 0 ) {
 		*bit = 1;
 	}else *bit = 0;
 	//printf("%x %x %d\n",pbr->byte,pbr->bitmask,*bit);
@@ -51,11 +51,12 @@ void readBit (BitReader_t *pbr, bool * bit ) {
         //pbw->pbuf[0] = pbw->byte;
         pbr->pbuf ++;
         pbr->bitmask = 0x80;
+		pbr->byte = pbr->pbuf[0];
         //if (pbw->byte == 0xFF)
         //    pbw->bitmask >>= 1;
 	//	printf("len:%d\n",pbr->pbuf-pbr->pbuf_base);
 	}   
-	pbr->byte = pbr->pbuf[0];
+	
 
 }
 //
@@ -106,6 +107,8 @@ void GolombDecoding (BitReader_t *pbr, int qbpp, int limit, int *val, int k) {
 	}
 }
 //
+#define PRINTLOG 1
+
 void RegularMODEDecoding(int near,int xsize,int ysize,int RANGE,int limit,int qbpp,int t1,int t2,int t3,int D1,int D2,int D3,BitReader_t *pbr,unsigned char* localimg,int *RUNindex,int *x,int *y,int *Ra ,int *Rb, int *Rc, int *Rd, int *Ix, int *A, int *B,int *C, int *N,int * Nn, bool * EOLine) {
 	int SIGN ,Rx,Px; 
 	int Q = getQ(near,t1,t2,t3,*Ra,*Rb,*Rc,*Rd,&SIGN); 
@@ -137,8 +140,9 @@ void RegularMODEDecoding(int near,int xsize,int ysize,int RANGE,int limit,int qb
 		else
 			Errval=-((MErrval+1)>>1);
 	}	
-
-	//printf("E:%d M:%d Px:%d\n",Errval,MErrval,Px);
+#if PRINTLOG
+	printf("E:%d M:%d Px:%d\n",Errval,MErrval,Px);
+#endif
 	//updating 
 	B[Q]=B[Q]+Errval*(2*near+1);
 	A[Q]=A[Q]+ABS(Errval);
@@ -162,6 +166,9 @@ void RegularMODEDecoding(int near,int xsize,int ysize,int RANGE,int limit,int qb
 	if(SIGN == -1)  Errval = -Errval;
 	//Rx = Errval + Px;
 	Rx=(Errval+Px)%(RANGE*(2*near+1));
+#if PRINTLOG
+	printf("Rx:%d Errval:%d Px:%d range:%d\n",Rx,Errval,Px,RANGE);
+#endif
 	if(Rx<(-near)) {
 		Rx = Rx + RANGE*(2*near+1);
 	}else if(Rx > (CONFIG_MAXVAL + near)) {
@@ -265,10 +272,10 @@ void RUNMODEDecoding(int near,int xsize,int ysize,int RANGE,int limit,int qbpp,B
 			//printf("x:%d y:%d\n",*x,*y);
 			//if(count == number) break;
 			if(*x == xsize-1) {
-				if(count != number) {
-					//printf("x:%d y:%d count:%d number:%d\n",*x,*y,count,number);
-				//	exit(0);
-				}
+				//if(count != number) {
+				//	//printf("x:%d y:%d count:%d number:%d\n",*x,*y,count,number);
+				////	exit(0);
+				//}
 				*x = 0;
 				*y = *y + 1;
 			} else {
@@ -401,7 +408,7 @@ int jlsdecode(int near,int xsize,int ysize, unsigned char * inputstream,unsigned
 			int D1 = Ra - Rb ; 
 			int D2 = Rb - Rc ;
 			int D3 = Rc - Ra ; 
-			Ix = GET2D(localimg,xsize,y,x );
+			//Ix = GET2D(localimg,xsize,y,x );
 			//printf("x : %d y:%d\n",x,y);
 			//printf("runindex %d\n",RUNindex);
 			if( (ABS(D1) <= near) && ( ABS(D2) <= near) && (ABS(D3) <= near)) {

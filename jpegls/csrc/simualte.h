@@ -36,7 +36,7 @@ void sim_init(){
 #if TESTMODULE == 1
   top = new Vjpeglsencodesimtop;
 #elif TESTMODULE == 2
-  top = new VVariableNode;
+  top = new Vjpeglsdecodesimtop;
 #elif TESTMODULE == 3 
   top = new VProcessingUnit;
 #elif TESTMODULE == 4 

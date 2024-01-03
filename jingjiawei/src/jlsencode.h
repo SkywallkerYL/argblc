@@ -200,6 +200,7 @@ int getBitWriterLength (BitWriter_t *pbw) {
 void writeValue (BitWriter_t *pbw, int value, int byte_cnt) {
     int i = byte_cnt * 8;
     for (i-=8; i>=0; i-=8) {
+		//printf("byte_cnt:%d i: %d\n",byte_cnt,i);
         pbw->pbuf[0] = (value >> i) & 0xFF;
         pbw->pbuf ++;
     }
@@ -207,13 +208,14 @@ void writeValue (BitWriter_t *pbw, int value, int byte_cnt) {
 
 
 void writeBit (BitWriter_t *pbw, int bit) {
+	//printf("bit : %d\t ind:%x\n",bit,pbw->bitmask);
     if (bit)
         pbw->byte |= pbw->bitmask;
     pbw->bitmask >>= 1;
     if (pbw->bitmask == 0) {
         pbw->pbuf[0] = pbw->byte;
         pbw->pbuf ++;
-	//	printf("%x\n",pbw->byte);
+		//printf("%x\n",pbw->byte);
         pbw->bitmask = 0x80;
         //if (pbw->byte == 0xFF)
         //    pbw->bitmask >>= 1;
@@ -223,8 +225,12 @@ void writeBit (BitWriter_t *pbw, int bit) {
 
 
 void writeBits (BitWriter_t *pbw, int bits, int n) {
-    for (n--; n>=0; n--)
-        writeBit(pbw, (bits>>n)&1);
+    //printf("bits:%x n: %d\n",bits,n);
+	for (n--; n>=0; n--){
+	//	printf("byte_cnt:%d i: %d\n",n,n);
+		writeBit(pbw, (bits>>n)&1);
+	}
+        
 }
 
 
@@ -262,7 +268,7 @@ void RegularMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int 
 	}else if (Px < 0) {
 		Px = 0 ;
 	}
-
+	//printf("pre :%d Cq:%d\n",predict(*Ra,*Rb,*Rc) ,C[Q]);
 	int Errval = *Ix - Px ;
 	if(SIGN == -1) Errval = -Errval ;
 	//Error quantization for near-lossless coding 
@@ -270,7 +276,8 @@ void RegularMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int 
 	/***************************/
 	//computeRx(near ,&Rx ,SIGN , Px, &Errval);
 	Rx = *Ix;
-	GET2D(localimg,xsize,*y,*x) = Rx; 
+	//GET2D(localimg,xsize,*y,*x) = Rx; 
+	//printf("Errval %d \n",Errval);
 	Errval = ModRange(RANGE,Errval);
 
 	//Prediction error encoding 
@@ -291,6 +298,11 @@ void RegularMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int 
 		else
 			MErrval=-2*Errval-1;
 	}	
+	//printf("Ra:%d Rb:%d Rc:%d Rd:%d\n",*Ra,*Rb,*Rc,*Rd);
+	//printf("Q:%d Ix:%d Px:%d sign:%d\n",Q,*Ix,Px,SIGN);
+	//printf("error Q:%d N:%d A:%d\n",Q,N[Q],A[Q]);
+	//printf("Jout :%d k : %d Errval %d \n",J[*RUNindex],k,Errval);
+	
 	GolombCoding(pbw,qbpp,limit,MErrval,k); 
 
 
@@ -340,7 +352,7 @@ void RUNMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int qbpp
 	while(ABS(*Ix - RUNval) <= near) {
 		RUNcnt = RUNcnt + 1 ;
 		Rx = RUNval ;
-		GET2D(localimg,xsize,*y,*x) = Rx ;
+		//GET2D(localimg,xsize,*y,*x) = Rx ;
 		//printf("%d %d %d\n",*x,*y,Rx);
 		if(*EOLine == 1) {
 			break;
@@ -360,14 +372,16 @@ void RUNMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int qbpp
 	//	printf("inside runcnt:%d runindex:%d\n",RUNcnt,*RUNindex);
 	// Run-length coding  
 	//printf("runcnt%d runindex%d\n",runcnt,runindex);
+	//printf("binside runcnt:%d runindex:%d\n",RUNcnt,*RUNindex);
 	while(RUNcnt >= (1 << J[*RUNindex])){
 		writeBit(pbw,1);
 		RUNcnt = RUNcnt - (1 << J[*RUNindex]) ;
+		//printf("inside runcnt:%d runindex:%d shift:%d\n",RUNcnt,*RUNindex,(1 << J[*RUNindex]));
 		if(*RUNindex < 31) {
 			*RUNindex = *RUNindex + 1;
 		}
-	}
-	//	printf("inside runcnt:%d runindex:%d\n",RUNcnt,*RUNindex);
+	}		
+	//printf("inside runcnt:%d runindex:%d\n",RUNcnt,*RUNindex);
 	
 	// IF the run was interrupted by the end of a line 
 	//if(*EOLine == 1 &&(ABS(*Ix-RUNval)<=near)) {
@@ -401,7 +415,7 @@ void RUNMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int qbpp
 		Px = *Rb ; 
 	}
 	Errval = *Ix - Px ; 
-	if((RItype == 0) &&(*Ra > *Rb)) {
+	if((RItype == 0) && (*Ra > *Rb)) {
 		Errval = - Errval ;
 		SIGN  = -1; 
 	}else {
@@ -439,8 +453,13 @@ void RUNMODEProcessing(int near,int xsize,int ysize,int RANGE,int limit,int qbpp
 	else 
 		map=0;
     EMErrval = 2*ABS(Errval) - RItype - map ;
-	//printf("originrunindex %d\n",originrunindex);
+	//printf("k : %d Errval %d EMErrval %d\n",k,Errval,EMErrval);
 	int glimit = limit - J[*RUNindex] -1;
+	//printf("x : %d y :%d",*x,*y);
+	//printf("Ra:%d Rb:%d Rc:%d Rd:%d\n",*Ra,*Rb,*Rc,*Rd);
+	//printf("Q:%d Ix:%d Px:%d sign:%d\n",Q,*Ix,Px,SIGN);
+	//printf("error Q:%d N:%d A:%d\n",Q,N[Q],A[Q]);
+	//printf("Jout :%d glimit:%d  k : %d Errval %d EMErrval %d\n",J[*RUNindex],glimit,k,Errval,EMErrval);
 	GolombCoding(pbw,qbpp,glimit,EMErrval,k); 
 	
 	// Update  

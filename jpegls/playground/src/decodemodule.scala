@@ -147,7 +147,7 @@ class RegularModeDecoding extends Module with COMMON {
     is(getErrval){
       when((NEAR.U === 0.U) && (k === 0.S) && (BQ2 <= -NQ)){
         when(MErrval(0) === 1.U){
-          Errval := (MErrval >> 1.U).asSInt 
+          Errval := ((MErrval-1.U) >> 1.U).asSInt 
         }.otherwise{
           Errval := -((MErrval >> 1.U).asSInt)-1.S
         }
@@ -155,7 +155,7 @@ class RegularModeDecoding extends Module with COMMON {
         when(MErrval(0) === 0.U){
           Errval := (MErrval >> 1.U).asSInt 
         }.otherwise{
-          Errval := -((MErrval >> 1.U).asSInt)
+          Errval := -(((MErrval+1.U) >> 1.U).asSInt)
         }
       }
       regularstate := update1
@@ -438,14 +438,16 @@ class RunModedecoding extends Module with COMMON {
   io.reader.flag := false.B 
   io.reader.opcode := 4.U 
 
-  io.reader.number  := EMErrval
+  io.reader.number  := JOUT
   io.runread := readrunflag
   io.outaddr.x := x 
   io.outaddr.y := y 
   io.updateen := false.B 
 
   io.ucontrol.start := false.B 
-  io.outpix := RUNval(COLORWIDTH-1,0)
+  val outpix = RegInit(0.U(COLORWIDTH.W))
+  io.outpix := outpix
+  //RUNval(COLORWIDTH-1,0)
 
   io.sample.update := false.B 
   //io.getpix.addrvalid := false.B 
@@ -507,6 +509,7 @@ class RunModedecoding extends Module with COMMON {
         count := count+1.U 
         //io.ucontrol.start := true.B 
         rundecodestate := updatesample 
+        outpix := RUNval(COLORWIDTH-1,0)
         updatesampleflag := 0.U  
       }
     }
@@ -575,6 +578,7 @@ class RunModedecoding extends Module with COMMON {
       when(count < number){
         count := count + 1.U 
         rundecodestate := updatesample
+        outpix := RUNval(COLORWIDTH-1,0)
         updatesampleflag := 1.U
       }.otherwise{
         when(RUNindex > 0.U){
@@ -698,9 +702,9 @@ class RunModedecoding extends Module with COMMON {
       }.elsewhen(Rx > (MAXVAL).S){
         Rx := MAXVAL.S
       }
-      rundecodestate := updatesample
+      rundecodestate := updatesample 
+      outpix := Rx(COLORWIDTH-1,0)
       updatesampleflag := 2.U
-      io.outpix := Rx(COLORWIDTH-1,0)
     }
     is(writeback){
       rundecodestate := initial 

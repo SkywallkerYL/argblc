@@ -38,8 +38,8 @@ doit:
 #Makefile for Verilator
 
 #rsdecodertop Decoder2Col rsdecodertopGauss rsdecoder2colGauss
-#jpeglsencodesimtop
-TOP?=jpeglsencodesimtop
+#jpeglsencodesimtop jpeglsdecodesimtop
+TOP?=jpeglsdecodesimtop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top
@@ -60,7 +60,7 @@ VERILATOR_FLAGS += -Wno-fatal
 VERILATOR_CFLAGS += -cc --exe --noassert
 #-Os -x-assign 0 --trace --coverage
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast 
-#VERILATOR_CFLAGS +=  --trace 
+VERILATOR_CFLAGS +=  --trace 
 #--coverage 
 VERILATOR_CFLAGS +=  --build 
 VERILATOR_CFLAGS += -Wno-fatal -O3 
