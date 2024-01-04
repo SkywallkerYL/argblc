@@ -511,6 +511,8 @@ class RunModedecoding extends Module with COMMON {
         rundecodestate := updatesample 
         outpix := RUNval(COLORWIDTH-1,0)
         updatesampleflag := 0.U  
+      }.otherwise{
+        rundecodestate := indexadd
       }
     }
     is(updatesample){

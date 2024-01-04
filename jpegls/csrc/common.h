@@ -38,7 +38,7 @@ int ITERMAX      = 5 ;
 
 
 
-#define WAVE 
+//#define WAVE 
 #define WAVE_BEGIN 0 
 #define WAVE_END   10000
 

@@ -128,7 +128,7 @@ void encodetest(){
 	//
 }
 #elif TESTMODULE == 2
-#define DECODETEST 1
+#define DECODETEST 0
 void decodetest(){
 	//cpp compress
 #if DECODETEST
@@ -175,31 +175,42 @@ void decodetest(){
 	int  sizex = 4;
 	int number = sizex*sizex;
 	bool flag = 1;
-	while (flag && (count <= 100000))
+	while (flag && (count <= 10000))
 	{
 		/* code */
-		srand(count*7+12458);
+		srand(count*7+12258);
 	//unsigned char data[number];
 		for (int i = 0 ; i  <  number;i++){
 			data[i] = (unsigned char)(rand() % 256);
 		}
+		//printf("\n");
+		//for (int i = 0; i < number ; i ++) {
+		//		if(i%sizex==0&&(i!=0)) printf("\n");
+		//		printf("%d\t",data[i]);
+		//	}
+		//printf("\n");
 		int *size  = new int(sizeof(data)/sizeof(unsigned char));
 		int originsize = *size ;
 		unsigned char  compressed[10* (*size) ];
 		int compsize = jpeglsencode(data, originsize , compressed,4,4 ) ;
-		
-		top->io_econtrol_start  = 1;
-		while (!top->io_econtrol_finish)
+		for (int i = 0; i < compsize ; i++){
+			coded[i] = compressed[i];
+		}
+		unsigned char * decomressed = (unsigned char *) malloc((originsize));   
+    	//rledecompress(compressed,decomressed,*size);
+		jlsdecode(0,4,4, compressed,decomressed);
+		top->io_dcontrol_start  = 1;
+		while (!top->io_dcontrol_finish)
 		{
 			clockntimes(1);
 		}
 		reset(5);
-		top->io_econtrol_start  = 0;
+		top->io_dcontrol_start  = 0;
 		
-		for (int i = 0; i < compsize ; i ++) {
+		for (int i = 0; i < originsize ; i ++) {
 			//if(i%4==0&&(i!=0)) printf("\n");
 			//printf("%d\t",decomressed[i]);
-			if(compressed[i] != coded[i]) {
+			if(data[i] != data1[i]) {
 				flag = 0;
 			//	printf ("rle wrong !\n");
 				//break;
@@ -219,13 +230,9 @@ void decodetest(){
 			}
 			printf("\n");
 			printf("compsize %d\n",compsize ); 
-			for(int i =0 ; i < compsize ; i++){
-				printf("%x ",compressed[i]);
-			}
-			printf("\n");
-
-			for(int i =0 ; i < compsize ; i++){
-				printf("%x ",coded[i]);
+			for (int i = 0; i < number ; i ++) {
+				if(i%sizex==0&&(i!=0)) printf("\n");
+				printf("%d\t",data1[i]);
 			}
 			printf("\n");
 		}

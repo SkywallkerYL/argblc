@@ -107,7 +107,7 @@ void GolombDecoding (BitReader_t *pbr, int qbpp, int limit, int *val, int k) {
 	}
 }
 //
-#define PRINTLOG 1
+#define PRINTLOG 0
 
 void RegularMODEDecoding(int near,int xsize,int ysize,int RANGE,int limit,int qbpp,int t1,int t2,int t3,int D1,int D2,int D3,BitReader_t *pbr,unsigned char* localimg,int *RUNindex,int *x,int *y,int *Ra ,int *Rb, int *Rc, int *Rd, int *Ix, int *A, int *B,int *C, int *N,int * Nn, bool * EOLine) {
 	int SIGN ,Rx,Px; 
