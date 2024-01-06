@@ -35,9 +35,9 @@ class BitReader extends Module with COMMON {
   val bitmask   = RegInit("h80".U(BYTEWIDTH.W))
   val byte      = RegInit(0.U(BYTEWIDTH.W))
   val localbyte = byte & bitmask
-  val len       = RegInit(0.U(16.W))
+  val len       = RegInit(0.U(AXIADDRWIDTH.W))
   val readaddr  = RegInit(0.U(AXIADDRWIDTH.W))
-  io.outaddr := readaddr
+  io.outaddr := len
   io.control.finish := false.B
   io.reader.finish := io.control.finish 
   //io.awready :=  
@@ -88,6 +88,7 @@ class BitReader extends Module with COMMON {
       when(io.control.start){
         readstate := arread 
         readaddr  := io.readaddr
+        len := 0.U 
       }
     }
     is(reading){
@@ -165,6 +166,7 @@ class BitReader extends Module with COMMON {
       io.axi.rready := true.B
       when(io.axi.rvalid){
         readaddr := readaddr + ADDRADD.U 
+        len := len + 1.U 
         byte := io.axi.rdata
         when(number =/= 0.U){
           readstate := readBits

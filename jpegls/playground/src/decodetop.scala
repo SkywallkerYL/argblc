@@ -10,7 +10,7 @@ Sequantial logic
 
 class jpeglsdecode extends Module with COMMON {
   val io = IO(new Bundle {
-    // read pix 
+
     // read bit 
     val axi = new AXIIO
     // read Pix  write Pix 
@@ -18,6 +18,7 @@ class jpeglsdecode extends Module with COMMON {
 
     //input 
     val dcontrol = new controlIO
+    val flush  = Input(Bool())
     val len = Output(UInt(AXIADDRWIDTH.W))
   })
 
@@ -152,6 +153,8 @@ class jpeglsdecode extends Module with COMMON {
 
   val runmodeflag = RegInit(0.U(1.W))
   val flushflag   = RegInit(0.U(1.W))
+  val readerinitflag = RegInit(0.U(1.W))
+
 
   D1 := getnextsample.io.sample.pix.Ra - getnextsample.io.sample.pix.Rb 
   D2 := getnextsample.io.sample.pix.Rb - getnextsample.io.sample.pix.Rc 
@@ -268,7 +271,9 @@ class jpeglsdecode extends Module with COMMON {
 
   
 
-
+  when(bitreader.io.control.finish){
+    readerinitflag:= true.B
+  }
 
   val idle :: updateaddr :: updatesample :: updateD :: runmoding :: regularmoding :: flush :: finish :: Nil = Enum(8) 
   //  0    :: 1          :: 2            :: 3       :: 4         :: 5             :: 6     :: 7      ::
@@ -293,6 +298,11 @@ class jpeglsdecode extends Module with COMMON {
         Nn(1) := 0.S 
         runmode.io.rcontrol.start := true.B 
         bitreader.io.control.start := true.B 
+      }
+      when(io.flush){
+        bitreader.io.reader.flag   := true.B 
+        bitreader.io.reader.opcode := 0.U   
+        readerinitflag := false.B
       }
     }
     is(updateaddr){
@@ -324,6 +334,7 @@ class jpeglsdecode extends Module with COMMON {
       }
     }
     is(updateD){
+      when(readerinitflag === 1.U){
       when(ABSH(D1) <= 0.S && ABSH(D2) <= 0.S && ABSH(D3) <= 0.S){
           state := runmoding
           //runmode.io.rcontrol.start := true.B 
@@ -332,6 +343,7 @@ class jpeglsdecode extends Module with COMMON {
           state := regularmoding
           //regularmode.io.rcontrol.start := true.B 
         }
+      }
     }
     is(runmoding){
       runmode.io.rcontrol.start := true.B 
@@ -460,6 +472,7 @@ class jpeglsdecodesimtop extends Module with COMMON {
     // write bit 
     //input 
     val dcontrol = new controlIO
+    val flush = Input(Bool())
     val len = Output(UInt(AXIADDRWIDTH.W)) 
   })
   val jls = Module(new jpeglsdecode)
@@ -468,6 +481,7 @@ class jpeglsdecodesimtop extends Module with COMMON {
   jls.io.axi <> bitram.io.axi 
   jls.io.pixaxi <> pixram.io.axi 
   jls.io.dcontrol <> io.dcontrol 
+  jls.io.flush <> io.flush 
   io.len := jls.io.len
   //io.econtrol.finish :=  jls.io.econtrol.finish
 }

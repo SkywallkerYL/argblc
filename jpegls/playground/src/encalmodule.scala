@@ -481,9 +481,9 @@ class BitWriter extends Module with COMMON {
   })
   val bitmask   = RegInit("h80".U(BYTEWIDTH.W))
   val byte      = RegInit(0.U(BYTEWIDTH.W))
-  val len       = RegInit(0.U(16.W))
+  val len       = RegInit(0.U(AXIADDRWIDTH.W))
   val writeaddr = RegInit(0.U(AXIADDRWIDTH.W))
-  io.outaddr := writeaddr
+  io.outaddr := len
   io.control.writing := false.B
   //io.awready :=  
   io.axi.awvalid := false.B 
@@ -530,6 +530,7 @@ class BitWriter extends Module with COMMON {
       when(io.start){
         state := writing 
         writeaddr := io.writeaddr
+        len := 0.U 
       }
     }
     is(writing){
@@ -545,8 +546,8 @@ class BitWriter extends Module with COMMON {
           number  := io.control.number 
         }.elsewhen(io.control.opcode === 3.U){
           state := flushBits 
-        }.otherwise{
-          state := writing
+        }.elsewhen(io.control.opcode === 0.U){
+          state := idle
         }
       }
     }
@@ -600,6 +601,7 @@ class BitWriter extends Module with COMMON {
       io.axi.bready := true.B 
       when(io.axi.bvalid){
         writeaddr := writeaddr + ADDRADD.U 
+        len := len + 1.U 
         byte := 0.U
         when(number =/= 0.U) {
           state := writeBits

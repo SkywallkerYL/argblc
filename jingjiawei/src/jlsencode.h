@@ -553,7 +553,7 @@ int jpeglsencode(const unsigned char* data, int n , unsigned char * code ,int xs
 	//printf("len %d\n",length);
 	return length;
 }
-int jpeglscompress (const unsigned char* data, int *size, unsigned char* compressed ){
+int jpeglscompress (const unsigned char* data, int *size, unsigned char* compressed ,bool flag,int xsize = 8,int ysize = 8){
 	//分离出 b g r a
 	//*size = 
 	int onesize = *size / 4 ; 	
@@ -563,16 +563,18 @@ int jpeglscompress (const unsigned char* data, int *size, unsigned char* compres
 	int colorind = 0;
 	for (int i = 0 ;i < onesize ; i ++ ){
 		b[i] = data[colorind];
+		//printf("%d ",b[i]);
 		g[i] = data[colorind+1];
 		r[i] = data[colorind+2];
 		a[i] = data[colorind+3];
 		colorind += 4;
 	}
+//	printf("\n");
 	unsigned char bcode[10*onesize],gcode[10*onesize],rcode[10*onesize],acode[10*onesize];
-	int bsize = jpeglsencode(b,onesize,bcode);
-	int gsize = jpeglsencode(g,onesize,gcode);
-	int rsize = jpeglsencode(r,onesize,rcode);
-	int asize = jpeglsencode(a,onesize,acode);
+	int bsize = jpeglsencode(b,onesize,bcode,xsize,ysize);
+	int gsize = jpeglsencode(g,onesize,gcode,xsize,ysize);
+	int rsize = jpeglsencode(r,onesize,rcode,xsize,ysize);
+	int asize = jpeglsencode(a,onesize,acode,xsize,ysize);
 
 //	char * bptr = (char*) malloc(bsize * sizeof(char));	
 //	char * gptr = (char*) malloc(gsize * sizeof(char));	
@@ -585,7 +587,7 @@ int jpeglscompress (const unsigned char* data, int *size, unsigned char* compres
 //	memcpy(aptr,acode,asize);
 	// 将压缩完成的字符按顺序存入compressed ;
 	unsigned char * compr = compressed;
-	if(bsize >= onesize || gsize >= onesize || rsize >= onesize || asize>=onesize){
+	if((bsize >= onesize || gsize >= onesize || rsize >= onesize || asize>=onesize)&&flag){
 		//cout << onesize <<endl;
 		//printf("%d %d %d %d \n",bsize,gsize,rsize,asize);
 		memcpy(compr,b,onesize); 

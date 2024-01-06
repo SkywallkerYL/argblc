@@ -38,7 +38,7 @@ void sim_init(){
 #elif TESTMODULE == 2
   top = new Vjpeglsdecodesimtop;
 #elif TESTMODULE == 3 
-  top = new VProcessingUnit;
+  top = new Vtilecompresssimtop;
 #elif TESTMODULE == 4 
   top = new VDecoder; 
 #elif TESTMODULE == 5

@@ -14,6 +14,8 @@ int main(int argc , char* argv[]) {
 #elif TESTMODULE == 2 
 	//printf("jjjjj\n");
 	decodetest();
+#elif TESTMODULE == 3 
+	encodetest();
 #endif 
 	sim_exit();
 	return 0;

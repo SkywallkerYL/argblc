@@ -8,7 +8,8 @@ object Elaborate extends App {
   // BitReader GolombdeCoding updateSample RegularModeDecoding RunModedecoding
   // jpeglsdecode 
   //jpeglsencodesimtop jpeglsdecodesimtop
-  def top = new jpeglsdecodesimtop
+  // tilecompresssimtop tiledecompresssimtop
+  def top = new tilecompresssimtop
   val useMFC = false // use MLIR-based firrtl compiler
   val generator = Seq(
     chisel3.stage.ChiselGeneratorAnnotation(() => top),

@@ -37,9 +37,9 @@ doit:
 	sbt run
 #Makefile for Verilator
 
-#rsdecodertop Decoder2Col rsdecodertopGauss rsdecoder2colGauss
 #jpeglsencodesimtop jpeglsdecodesimtop
-TOP?=jpeglsdecodesimtop
+#tilecompresssimtop
+TOP?=tilecompresssimtop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top

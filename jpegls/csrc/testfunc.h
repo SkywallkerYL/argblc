@@ -20,7 +20,7 @@
 
 using namespace std;
 #if TESTMODULE == 1
-#define ENCODETEST 0
+#define ENCODETEST 1
 void encodetest(){
 	//cpp compress
 #if ENCODETEST
@@ -51,6 +51,8 @@ void encodetest(){
 	{
 		clockntimes(1);
 	}
+	printf("Verilog len:%d compsize:%d\n",top->io_len,compsize);
+	printf("Verilog results\n");
 	for(int i =0 ; i < compsize ; i++){
 		printf("%x ",coded[i]);
 	}
@@ -128,7 +130,7 @@ void encodetest(){
 	//
 }
 #elif TESTMODULE == 2
-#define DECODETEST 0
+#define DECODETEST 1
 void decodetest(){
 	//cpp compress
 #if DECODETEST
@@ -164,6 +166,7 @@ void decodetest(){
 	{
 		clockntimes(1);
 	}
+	printf("Verilog len:%d compsize:%d\n",top->io_len,compsize);
 	printf("Verilog results\n");
 	for(int i =0 ; i < originsize ; i++){
 		if(i%sizex==0&&(i!=0)) printf("\n");
@@ -249,6 +252,147 @@ void decodetest(){
 #endif
 	//
 }
+#elif TESTMODULE == 3
+#define ENCODETEST 0
+void encodetest(){
+	//cpp compress
+#if ENCODETEST
+	int  sizex = 4;
+	int number = sizex*sizex;
+	for (int i = 0; i < number*4 ; i ++) {
+		tiledata[i] = (unsigned char)(rand() % 256);
+		//if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d\t",tiledata[i]);
+	}
+	printf("\n");
+	int *size  = new int(sizeof(tiledata)/sizeof(unsigned char));
+    //int originsize = *size ;
+	//cout << *size << endl ;
+	int originsize = *size ;
+	printf("origin size %d\n", *size  );
+	unsigned char  compressed[10* (*size) ];
+	//rlecompress(data,size ,compressed);
+	jpeglscompress(tiledata,size,compressed,0,4,4); 
+	int compsize = *size;
+	printf("compsize %d\n",compsize ); 
+	for(int i =0 ; i < compsize ; i++){
+		printf("%x ",compressed[i]);
+	}
+	printf("\n");
+	// Verilog compress
+	//for (int i = 0; i < compsize ; i++){
+	//	tilecode[i] = compressed[i];
+	//}
+	//unsigned char * decomressed = (unsigned char *) malloc((originsize));   
+    //rledecompress(compressed,decomressed,*size);
+	//jlsdecode(0,4,4, compressed,decomressed);
+	top->io_tcontrol_start  = 1;
+	while (!top->io_tcontrol_finish)
+	{
+		clockntimes(1);
+	}
+	printf("Verilog len:%d compsize:%d\n",top->io_len,compsize);
+	printf("Verilog results\n");
+	for(int i =0 ; i < compsize ; i++){
+		//if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%x ",tilecode[i]);
+	}
+	printf("\n");
+#else 
+	int count = 0;
+	int  sizex = 4;
+	int number = sizex*sizex;
+	bool flag = 1;
+	while (flag && (count <= 10000))
+	{
+		/* code */
+		srand(count*7+12258);
+	//unsigned char data[number];
+		for (int i = 0; i < number*4 ; i ++) {
+			tiledata[i] = (unsigned char)(rand() % 256);
+		//if(i%sizex==0&&(i!=0)) printf("\n");
+			//printf("%d\t",tiledata[i]);
+		}
+		//printf("\n");
+		int *size  = new int(sizeof(tiledata)/sizeof(unsigned char));
+    	//int originsize = *size ;
+		//cout << *size << endl ;
+		int originsize = *size ;
+		//printf("origin size %d\n", *size  );
+		unsigned char  compressed[10* (*size) ];
+		//rlecompress(data,size ,compressed);
+		jpeglscompress(tiledata,size,compressed,0,4,4); 
+		int compsize = *size;
+
+		top->io_tcontrol_start  = 1;
+		while (!top->io_tcontrol_finish)
+		{
+			clockntimes(1);
+		}
+		top->io_tcontrol_start  = 0;
+		clockntimes(10);
+		//reset(5);
+		//printf("Verilog len:%d compsize:%d\n",top->io_len,compsize);
+		//printf("Verilog results\n");
+		//for(int i =0 ; i < compsize ; i++){
+		//	//if(i%sizex==0&&(i!=0)) printf("\n");
+		//	printf("%x ",tilecode[i]);
+		//}
+		//printf("\n");
+		
+		for (int i = 0; i < compsize ; i ++) {
+			//if(i%4==0&&(i!=0)) printf("\n");
+			//printf("%d\t",decomressed[i]);
+			if(tilecode[i] != compressed[i]) {
+				flag = 0;
+			//	printf ("rle wrong !\n");
+				//break;
+			}
+		}
+		printf("count:%d\n",count);
+		//for (int i = 0; i < number ; i ++) {
+		//	if(i%sizex==0&&(i!=0)) printf("\n");
+		//	printf("%d\t",data[i]);
+		//}
+		//printf("\n");
+		if(!flag) {
+			printf("count:%d\n",count);
+			for (int i = 0; i < number*4 ; i ++) {
+				//if(i%sizex==0&&(i!=0)) printf("\n");
+				printf("%d\t",tiledata[i]);
+			}
+			printf("\n");
+			printf("Verilog len:%d compsize:%d\n",top->io_len,compsize);
+			for(int i =0 ; i < compsize ; i++){
+			//if(i%sizex==0&&(i!=0)) printf("\n");
+				printf("%x ",compressed[i]);
+			}
+			printf("\n");
+			for(int i =0 ; i < compsize ; i++){
+			//if(i%sizex==0&&(i!=0)) printf("\n");
+				printf("%x ",tilecode[i]);
+			}
+			printf("\n");
+			//for (int i = 0; i < number ; i ++) {
+			//	if(i%sizex==0&&(i!=0)) printf("\n");
+			//	printf("%d\t",data1[i]);
+			//}
+			//printf("\n");
+		}
+		count++;
+		//printf("\n");
+
+		delete size ;
+	}
+	if(flag){
+		printf("%d random samples check pass\n",count);
+	}
+
+
+#endif
+	//
+}
+
 
 
 #endif 

@@ -19,7 +19,7 @@
 #define LLR_INIT_TABLE 5
 
 
-#define TESTMODULE 2
+#define TESTMODULE 3
 #if TESTMODULE == 1
 // CheckNode Test 
 #include "Vjpeglsencodesimtop.h"
@@ -29,10 +29,11 @@ Vjpeglsencodesimtop* top;
 #elif TESTMODULE == 2
 #include "Vjpeglsdecodesimtop.h"
 #include "Vjpeglsdecodesimtop___024root.h"
-//#include "VCheckNode__Dpi.h"
 Vjpeglsdecodesimtop* top;
-int maxerrortime = 50;
-int ITERMAX      = 5 ;
+#elif TESTMODULE == 3
+#include "Vtilecompresssimtop.h"
+#include "Vtilecompresssimtop___024root.h"
+Vtilecompresssimtop* top;
 #endif
 //#define DIFFTEST 
 

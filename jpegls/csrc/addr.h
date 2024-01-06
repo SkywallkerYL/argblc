@@ -9,13 +9,16 @@
 
 
 unsigned char data[] = {
-		(unsigned char)0	,(unsigned char)52    ,(unsigned char)199   ,(unsigned char)114     ,
-		(unsigned char)11	,(unsigned char)239   ,(unsigned char)11    ,(unsigned char)134     ,
-		(unsigned char)229	,(unsigned char)7     ,(unsigned char)116   ,(unsigned char)137     ,
-		(unsigned char)148	,(unsigned char)68    ,(unsigned char)68    ,(unsigned char)115 
+		(unsigned char)103	,(unsigned char)81    ,(unsigned char)41    ,(unsigned char)242     ,
+		(unsigned char)124	,(unsigned char)27    ,(unsigned char)118   ,(unsigned char)51      ,
+		(unsigned char)102	,(unsigned char)49    ,(unsigned char)37    ,(unsigned char)88     ,
+		(unsigned char)171	,(unsigned char)155   ,(unsigned char)14    ,(unsigned char)33 
 	};
 unsigned char data1[16];
-unsigned char coded[1600];
+unsigned char tiledata[16*4];
+unsigned char tilecode[320];
+unsigned char tiledata1[16*4];
+unsigned char coded[160];
 
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     //printf("addr:0x%016x data:0x%016x mask:0b%02b \n",waddr,wdata,wmask);
@@ -23,8 +26,12 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     //uint64_t write_data = wdata;
     if(waddr >= 0x80000000){
         coded[waddr-0x80000000] = (unsigned char)(wdata & 0xffull);
-    }else {
+    }else if (waddr < 0x10000000) {
         data1[waddr] =  (unsigned char)(wdata & 0xffull);
+    }else if (waddr >= 0x70000000 && waddr < 0x80000000){
+        tilecode[waddr-0x70000000] = (unsigned char)(wdata & 0xffull);
+    }else if (waddr >= 0x60000000 && waddr < 0x70000000){
+        tiledata1[waddr-0x70000000] = (unsigned char)(wdata & 0xffull);
     }
     //for (char i = 0; i < 8; i++)
     //{
@@ -42,8 +49,13 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     //printf("addr:0x%016x data:0x%016x\n",waddr,wdata);
     if(raddr >= 0x80000000){
         *rdata = (long long) (unsigned char)coded[raddr-0x80000000];
-    }else{
+    }else if (raddr < 0x10000000) {
         *rdata = (long long) (unsigned char)data[raddr];
+    }else if (raddr >= 0x60000000 && raddr < 0x70000000){
+        *rdata = (long long) (unsigned char)tiledata[raddr-0x60000000];
+    }
+    else if (raddr >= 0x70000000 && raddr < 0x80000000){
+        *rdata = (long long) (unsigned char)tilecode[raddr-0x70000000];
     }
     
     //printf("addr:0x%016x data:%d read:%d\n",raddr,*rdata,data[raddr]);

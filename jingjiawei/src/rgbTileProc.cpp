@@ -37,7 +37,7 @@ int argb2tile(const unsigned char* pClrBlk, unsigned char* pTile, int* pTileSize
 	//memcpy(pTile, pClrBlk, *pTileSize);
 	//unsigned char rlepClr[(*pTileSize*8)];
 	//rlecompress(pClrBlk,pTileSize,pTile);
-	jpeglscompress(pClrBlk,pTileSize,pTile);
+	jpeglscompress(pClrBlk,pTileSize,pTile,1);
 	//rleandlz77Compress(pClrBlk,pTileSize,pTile);
 	//lz77Compress(pClrBlk,pTileSize,pTile);
 	//lz77Compress(pClrBlk,pTileSize,pTile);

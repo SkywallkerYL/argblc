@@ -15,6 +15,7 @@ class jpeglsencode extends Module with COMMON {
     val axi = new AXIIO 
     //input 
     val econtrol = new controlIO
+    val flush =  Input(Bool())
     val len = Output(UInt(AXIADDRWIDTH.W))
   })
 
@@ -285,6 +286,11 @@ class jpeglsencode extends Module with COMMON {
         runmode.io.rcontrol.start := true.B 
         bitwrite.io.start := true.B 
       }
+      when(io.flush){
+        bitwrite.io.control.flag   := true.B 
+        bitwrite.io.control.opcode := 0.U   
+      }
+      
     }
     is(updateaddr){
       //when(x =/= 0.U && y =/= 0.U){ 
@@ -459,12 +465,14 @@ class jpeglsencodesimtop extends Module with COMMON {
     // write bit 
     //input 
     val econtrol = new controlIO
+    val flush = Input(Bool())
     val len = Output(UInt(AXIADDRWIDTH.W)) 
   })
   val jls = Module(new jpeglsencode)
   val ram = Module(new  ramtop)
   jls.io.axi <> ram.io.axi 
   jls.io.econtrol <> io.econtrol 
+  jls.io.flush <> io.flush
   io.len := jls.io.len
   //io.econtrol.finish :=  jls.io.econtrol.finish
 }
