@@ -38,8 +38,8 @@ doit:
 #Makefile for Verilator
 
 #jpeglsencodesimtop jpeglsdecodesimtop
-#tilecompresssimtop
-TOP?=tilecompresssimtop
+#tilecompresssimtop tiledecompresssimtop
+TOP?=tiledecompresssimtop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top

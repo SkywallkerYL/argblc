@@ -16,7 +16,7 @@ unsigned char data[] = {
 	};
 unsigned char data1[16];
 unsigned char tiledata[16*4];
-unsigned char tilecode[320];
+unsigned char tilecode[640];
 unsigned char tiledata1[16*4];
 unsigned char coded[160];
 
@@ -31,7 +31,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }else if (waddr >= 0x70000000 && waddr < 0x80000000){
         tilecode[waddr-0x70000000] = (unsigned char)(wdata & 0xffull);
     }else if (waddr >= 0x60000000 && waddr < 0x70000000){
-        tiledata1[waddr-0x70000000] = (unsigned char)(wdata & 0xffull);
+        tiledata1[waddr-0x60000000] = (unsigned char)(wdata & 0xffull);
     }
     //for (char i = 0; i < 8; i++)
     //{
@@ -46,7 +46,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     
 }
 extern "C" void pmem_read(long long raddr, long long *rdata){
-    //printf("addr:0x%016x data:0x%016x\n",waddr,wdata);
+    //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
     if(raddr >= 0x80000000){
         *rdata = (long long) (unsigned char)coded[raddr-0x80000000];
     }else if (raddr < 0x10000000) {

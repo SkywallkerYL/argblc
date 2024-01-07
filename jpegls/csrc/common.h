@@ -19,7 +19,7 @@
 #define LLR_INIT_TABLE 5
 
 
-#define TESTMODULE 3
+#define TESTMODULE 4
 #if TESTMODULE == 1
 // CheckNode Test 
 #include "Vjpeglsencodesimtop.h"
@@ -34,6 +34,10 @@ Vjpeglsdecodesimtop* top;
 #include "Vtilecompresssimtop.h"
 #include "Vtilecompresssimtop___024root.h"
 Vtilecompresssimtop* top;
+#elif TESTMODULE == 4
+#include "Vtiledecompresssimtop.h"
+#include "Vtiledecompresssimtop___024root.h"
+Vtiledecompresssimtop* top;
 #endif
 //#define DIFFTEST 
 
