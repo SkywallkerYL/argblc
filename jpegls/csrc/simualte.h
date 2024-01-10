@@ -42,7 +42,7 @@ void sim_init(){
 #elif TESTMODULE == 4 
   top = new Vtiledecompresssimtop; 
 #elif TESTMODULE == 5
-  top = new VGngWrapper; 
+  top = new VcompressARGBtop; 
 #elif TESTMODULE == 6 
   top = new VTopdecoder;
 #elif TESTMODULE == 7 

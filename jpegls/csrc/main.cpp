@@ -5,6 +5,7 @@
 #include "common.h"
 #include "testfunc.h"
 #include "simualte.h"
+#include "argbtilesim.h"
 int main(int argc , char* argv[]) {
 	sim_init();
 
@@ -18,6 +19,8 @@ int main(int argc , char* argv[]) {
 	encodetest();
 #elif TESTMODULE == 4
 	decodetest();
+#elif TESTMODULE == 5
+	compresstest();
 #endif 
 	sim_exit();
 	return 0;

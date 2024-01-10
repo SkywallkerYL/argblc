@@ -22,13 +22,6 @@ class BitReader extends Module with COMMON {
     val readaddr  = Input(UInt(AXIADDRWIDTH.W))    
     val reader    = new BitReaderIO
     val control   = new controlIO
-    //val flag      = Input(Bool())
-    //val opcode    = Input(UInt(2.W))
-    //val bit       = Input(UInt(1.W))
-    //val bits      = Input(UInt(SIGNWIDTH.W))
-    //val number    = Input(UInt(SIGNWIDTH.W))
-
-
     val axi       = new AXIIO
     val outaddr   = Output(UInt(AXIADDRWIDTH.W))
   })

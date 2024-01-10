@@ -106,7 +106,7 @@ class GetNextSample extends Module with COMMON {
 
   ***/
   val idle :: getRb :: getRd :: getRc1 :: getRa :: getRc2 :: finish :: Nil = Enum(7)
-
+ //   0    :: 1     :: 2     :: 3      :: 4     :: 5      ::  6     :: 
   val SampleState = RegInit(idle)
 
   switch(SampleState){

@@ -54,28 +54,10 @@ trait COMMON{
   //地址位宽
   val XADDRWIDTH = log2Ceil(X_SIZE)
   val YADDRWIDTH = log2Ceil(Y_SIZE)
-  //  量化表  
-  
-  //ITER 的宽度 
-  val ITERWITH = 5  
-  val FRAMEWITH = 64
-//这个相对路径是根据makefile所在的文件夹决定的
-  val IOTablePath     : String    = "./build/Table.h"
-  val FilePath        : String    = "../matrix/qc_peg_5_32.txt"
-  val CodePath          : String    = "../matrix/codeword.txt"
-  val UncodePath        : String    = "../matrix/uncodedbits.txt"
-//RAM的类型 ，是用syncreadmem 或者 mem  
-//并行路数
-  val PARRELNUM  = 1
-// 最多记录的错误比特的个数   
-  val MAXERRORNUM = 10
-  // 后处理参数  
-  val strongMessage = 6
-  val weakMessage   = 2
-  val strongMessage0 = 7
-  val weakMessage0   = 2
-  val postIterInput      = 8
-  val maxpostnum  = 2
+  //  图片大小数据位宽 
+
+  val HEIGHT = 32 
+  val WIDTH  = 32
   
   
   val PWITH = 16
@@ -135,7 +117,5 @@ class AXIIO extends Bundle with COMMON {
   val rresp   = Input(UInt(AXIRESPWIDTH.W))
   val rdata   = Input(UInt(AXIDATAWIDTH.W))
   val rlast   = Input(Bool())
-
-
 
 }

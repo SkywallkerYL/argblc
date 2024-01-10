@@ -17,6 +17,7 @@ class jpeglsencode extends Module with COMMON {
     val econtrol = new controlIO
     val flush =  Input(Bool())
     val len = Output(UInt(AXIADDRWIDTH.W))
+    val addr = new addrIO
   })
 
   val A  =  RegInit(VecInit(Seq.fill(367)(0.S(TEXTWIDTH.W))))
@@ -113,6 +114,8 @@ class jpeglsencode extends Module with COMMON {
     x := newx 
     y := newy 
   }
+  io.addr.x := x 
+  io.addr.y := y
   //D 
   val D1 = RegInit(0.S(SIGNWIDTH.W))
   val D2 = RegInit(0.S(SIGNWIDTH.W))
@@ -151,6 +154,11 @@ class jpeglsencode extends Module with COMMON {
 
   val runmodeflag = RegInit(0.U(1.W))
   val flushflag   = RegInit(0.U(1.W))
+
+  when(runmodeflag === 1.U){
+    io.addr.x := runmode.io.outaddr.x 
+    io.addr.y := runmode.io.outaddr.y
+  }
 
   D1 := getnextsample.io.sample.pix.Ra - getnextsample.io.sample.pix.Rb 
   D2 := getnextsample.io.sample.pix.Rb - getnextsample.io.sample.pix.Rc 
@@ -233,6 +241,7 @@ class jpeglsencode extends Module with COMMON {
 
   newx := runmode.io.outaddr.x 
   newy := runmode.io.outaddr.y 
+
   xyupdate := runmode.io.updateen
 
   runmode.io.sample <> getnextsample.io.sample

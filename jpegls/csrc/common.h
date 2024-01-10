@@ -19,7 +19,7 @@
 #define LLR_INIT_TABLE 5
 
 
-#define TESTMODULE 4
+#define TESTMODULE 5
 #if TESTMODULE == 1
 // CheckNode Test 
 #include "Vjpeglsencodesimtop.h"
@@ -38,6 +38,10 @@ Vtilecompresssimtop* top;
 #include "Vtiledecompresssimtop.h"
 #include "Vtiledecompresssimtop___024root.h"
 Vtiledecompresssimtop* top;
+#elif TESTMODULE == 5
+#include "VcompressARGBtop.h"
+#include "VcompressARGBtop___024root.h"
+VcompressARGBtop* top;
 #endif
 //#define DIFFTEST 
 
@@ -51,7 +55,8 @@ Vtiledecompresssimtop* top;
 int wavecount = 0 ;
 
 
-
+int picxsize = 320;
+int picysize = 320;
 
 
 # define __PRI64_PREFIX	"l"

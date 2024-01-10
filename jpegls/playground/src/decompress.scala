@@ -157,3 +157,23 @@ class tiledecompresssimtop extends Module with COMMON {
   jls.io.compinf.incompaddr := "x70000000".U
   //io.dcontrol.finish :=  jls.io.dcontrol.finish
 }
+
+class decompressARGB extends Module with COMMON {
+  val io = IO(new Bundle {
+    // read pix 
+    // write bit 
+    //input 
+    val tcontrol = new controlIO
+    //val flush = Input(Bool())
+    val len = Output(UInt(AXIADDRWIDTH.W)) 
+  })
+  val jls = Module(new tiledecompress)
+  val bitram = Module(new  ramtop)
+  val pixram = Module(new  ramtop)
+  jls.io.axi <> bitram.io.axi 
+  jls.io.pixaxi <> pixram.io.axi 
+  jls.io.tcontrol <> io.tcontrol 
+  io.len := jls.io.compinf.len
+  jls.io.compinf.inpixaddr := "x60000000".U 
+  jls.io.compinf.incompaddr := "x70000000".U
+}

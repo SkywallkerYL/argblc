@@ -39,7 +39,8 @@ doit:
 
 #jpeglsencodesimtop jpeglsdecodesimtop
 #tilecompresssimtop tiledecompresssimtop
-TOP?=tiledecompresssimtop
+#compressARGBtop
+TOP?=compressARGBtop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top

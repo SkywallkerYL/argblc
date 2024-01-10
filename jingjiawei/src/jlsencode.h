@@ -569,7 +569,7 @@ int jpeglscompress (const unsigned char* data, int *size, unsigned char* compres
 		a[i] = data[colorind+3];
 		colorind += 4;
 	}
-//	printf("\n");
+	//printf("%d \n",xsize);
 	unsigned char bcode[10*onesize],gcode[10*onesize],rcode[10*onesize],acode[10*onesize];
 	int bsize = jpeglsencode(b,onesize,bcode,xsize,ysize);
 	int gsize = jpeglsencode(g,onesize,gcode,xsize,ysize);
