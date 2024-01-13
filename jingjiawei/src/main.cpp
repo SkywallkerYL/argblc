@@ -178,6 +178,7 @@ int decompressARGB(char const * compressedFileName, char const * outFileName) {
 			ifs.seekg(tileDataStartPos + tileDataOffset);
             ifs.read(readBuffer, tileDataBytes);
             // decompress
+            //printf("originsize : %d\n", tileDataBytes);
             tile2argb((unsigned char*)readBuffer, tileDataBytes, pTempDecompressionBuffer);
 
             for (int i = 0; i < tileHeight; i++) {

@@ -253,24 +253,83 @@ void decodetest(){
 	//
 }
 #elif TESTMODULE == 3
-#define ENCODETEST 0
-void encodetest(){
+#define ENCODETEST 1
+void encodetest(const char *inFileName ){
 	//cpp compress
 #if ENCODETEST
 	int  sizex = 4;
 	int number = sizex*sizex;
-	for (int i = 0; i < number*4 ; i ++) {
-		tiledata[i] = (unsigned char)(rand() % 256);
-		//if(i%sizex==0&&(i!=0)) printf("\n");
-		printf("%d\t",tiledata[i]);
+	int width,height;
+	unsigned char *pic = getpixdata(inFileName,&width, &height);
+	for(int i = 0; i < width*height*4;i++){
+		picdata[i] = pic[i];
 	}
+	picxsize = width;
+	picysize = height;
 	printf("\n");
-	int *size  = new int(sizeof(tiledata)/sizeof(unsigned char));
+	int *size  = new int(sizeof(picdata)/sizeof(unsigned char));
     //int originsize = *size ;
 	//cout << *size << endl ;
-	int originsize = *size ;
-	printf("origin size %d\n", *size  );
-	unsigned char  compressed[10* (*size) ];
+	int originsize = picxsize*picysize*4 ;
+	printf("origin size %d\n", originsize );
+	//printf("origin size %d\n", *size  );
+	unsigned char  *compressed1 = new unsigned char[originsize*5];
+	//rlecompress(data,size ,compressed);
+	//printf("origin size %d\n", *size  );
+	unsigned char * filetile =  new unsigned char[number*4];
+	
+	compressARGB2tile(pic,compressed1,size,picysize,picxsize,4,4,filetile);
+	//
+	delete [] compressed1;
+	//compressedC = compressed1;
+	for (int i = 0; i < number*4 ; i ++) {
+
+		tiledata[i] = filetile[i];//(unsigned char)(rand() % 256);
+		//if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d ",tiledata[i]);
+	}
+	printf("\n");
+	int onesize = 16;
+	unsigned char b[onesize],g[onesize],r[onesize],a[onesize];
+	int colorind = 0;
+	for (int i = 0 ;i < onesize ; i ++ ){
+		b[i] = tiledata[colorind];
+		//printf("%d ",b[i]);
+		g[i] = tiledata[colorind+1];
+		r[i] = tiledata[colorind+2];
+		a[i] = tiledata[colorind+3];
+		colorind += 4;
+	}
+	printf("b\n");
+	for(int i = 0; i < sizex*sizex;i++){
+		if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d\t",b[i]);
+	}
+	printf("\n");
+	printf("g\n");
+	for(int i = 0; i < sizex*sizex;i++){
+		if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d\t",g[i]);
+	}
+	printf("\n");
+	printf("r\n");
+	for(int i = 0; i < sizex*sizex;i++){
+		if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d\t",r[i]);
+	}
+	printf("\n");
+	printf("a\n");
+	for(int i = 0; i < sizex*sizex;i++){
+		if(i%sizex==0&&(i!=0)) printf("\n");
+		printf("%d\t",a[i]);
+	}
+	printf("\n");
+    //int originsize = *size ;
+	//cout << *size << endl ;
+	*size = number*4;
+	originsize = number*4  ;
+	printf("origin size %d\n",originsize );
+	unsigned char  compressed[10* originsize];
 	//rlecompress(data,size ,compressed);
 	jpeglscompress(tiledata,size,compressed,0,4,4); 
 	int compsize = *size;
@@ -350,6 +409,7 @@ void encodetest(){
 			}
 		}
 		printf("count:%d\n",count);
+		
 		//for (int i = 0; i < number ; i ++) {
 		//	if(i%sizex==0&&(i!=0)) printf("\n");
 		//	printf("%d\t",data[i]);

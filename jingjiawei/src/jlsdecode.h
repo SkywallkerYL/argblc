@@ -444,14 +444,15 @@ int jpeglsdecompress(const unsigned char * code , unsigned char *data , int size
 	unsigned char *input = (unsigned char *) code;
 	int originsize = 0 ;
 	//printf("hhhh\n");
+	//printf("originsize : %d\n", size1);
 	if(size1 == 8 * 8 * 4){
 		//printf("originsize : %d\n", size1);
 		//cout << W << " "<<H << endl;
 		memcpy(res,code,size1);
 		originsize = size1 ;
 	} else {
-		originsize=256;	
-		jlsdecode(0,8,8, input,res,4);
+		originsize=64;	
+		jlsdecode(0,4,4, input,res,4);
 		//originsize=256;
 		//printf("originsize : %d\n", originsize);
 	}

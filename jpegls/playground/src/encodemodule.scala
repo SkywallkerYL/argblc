@@ -425,15 +425,22 @@ class RunMode extends Module with COMMON {
       RUNindex := 0.U 
       when(io.rcontrol.start){
         state := initial 
-        //Prex  := io.Px
-        //AQ := io.infoin.A 
-        //BQ := io.infoin.B 
-        //CQ := io.infoin.C 
-        //NQ := io.infoin.N 
-        //Ix := io.inpix
-        //RUNval := io.sample.pix.Ra 
-        //sign := io.sign
-        //Qin := io.Q
+        AQ  := 0.S
+        BQ  := 0.S
+        BQ2 := 0.S
+        CQ  := 0.S
+        NQ  := 0.S
+        Qin := 0.S
+        Nn  := 0.S
+        Nn2 := 0.S
+        writerunflag := 0.U 
+        Px   := 0.S 
+        Ix   := 0.S 
+        Rx   := 0.S 
+        Errval := 0.S 
+        k := 0.S 
+        MErrval := 0.S 
+        glimit := 0.S
       }
     }
     is(initial){

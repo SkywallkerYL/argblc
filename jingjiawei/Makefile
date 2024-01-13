@@ -10,7 +10,7 @@ CFLAGS = -O0 -g -fPIC -Werror
 
 fblcd.out: $(OBJ)
 	$(CC) $^ $(CFLAGS) -o $@
-	mkdir $(COMPRESS_DIR) 
+	mkdir -p $(COMPRESS_DIR) 
 $(OBJ): %.o: $(SRC_DIR)%.cpp
 	$(CC) -c $< $(INCLUDEPATH) $(CFLAGS) -o $@
 NUMBER=01

@@ -39,8 +39,8 @@ doit:
 
 #jpeglsencodesimtop jpeglsdecodesimtop
 #tilecompresssimtop tiledecompresssimtop
-#compressARGBtop
-TOP?=compressARGBtop
+#compressARGBtop compressARGBfiletop
+TOP?=compressARGBfiletop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top
@@ -75,6 +75,9 @@ VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 
 CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" -or -name "*.cc" ) 
+#CSRCT += /home/yangli/argblc/jingjiawei/src/defines.h
+#CSRCT += /home/yangli/argblc/jingjiawei/src/stb_image.h
+#CSRCT += /home/yangli/argblc/jingjiawei/src/stb_image_write.h
 #addertop.cpp alu_tb.cpp main.cpp
 
 #BUILD_DIR = ./build
@@ -112,7 +115,7 @@ VCFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 #CFLAGS += -D__STDC_LIMIT_MACROS
 #CFLAGS += -fPIE -g
 
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g 
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g -fPIC 
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
@@ -125,7 +128,15 @@ CFLAGS_BUILD += -fsanitize=address
 #LDFLAGS+= $(CFLAGS_BUILD)
 IMG?=
 
-	
+NUMBER=01
+SAMPLE=sample
+FILENAME=$(SAMPLE)$(NUMBER)
+FILE_DIR =../jingjiawei/res/
+SRC=$(FILE_DIR)$(FILENAME)
+COMPRESS_DIR =../jingjiawei/build/
+MODEL=-en
+
+
 $(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
@@ -160,7 +171,8 @@ run:
 # $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	./obj_dir/V$(TOPNAMETEST)
+	mkdir -p $(COMPRESS_DIR)
+	./obj_dir/V$(TOPNAMETEST) $(MODEL) $(SRC).bmp $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)
 
 #gtkwave wave.vcd
 wave:

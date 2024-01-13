@@ -9,17 +9,25 @@
 #include <time.h>
 #include <random>
 #include <math.h>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <math.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "verilated_vcd_c.h"
-
+#include "../../jingjiawei/src/defines.h"
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../../jingjiawei/src/stb_image.h"
+#include "../../jingjiawei/src/stb_image_write.h"
 #include "../../jingjiawei/src/jlsencode.h" 
 #include "../../jingjiawei/src/jlsdecode.h" 
 #define LLR_INIT_TABLE 5
 
 
-#define TESTMODULE 5
+#define TESTMODULE 6
 #if TESTMODULE == 1
 // CheckNode Test 
 #include "Vjpeglsencodesimtop.h"
@@ -42,21 +50,25 @@ Vtiledecompresssimtop* top;
 #include "VcompressARGBtop.h"
 #include "VcompressARGBtop___024root.h"
 VcompressARGBtop* top;
+#elif TESTMODULE == 6
+#include "VcompressARGBfiletop.h"
+#include "VcompressARGBfiletop___024root.h"
+VcompressARGBfiletop* top;
 #endif
 //#define DIFFTEST 
 
 
 
 //#define WAVE 
-#define WAVE_BEGIN 0 
-#define WAVE_END   10000
+#define WAVE_BEGIN 0
+#define WAVE_END   765294
 
 #define TRACE_CONDITION(a,begin,end) ((a>=begin)&&(a<end))
 int wavecount = 0 ;
 
 
-int picxsize = 320;
-int picysize = 320;
+int picxsize = 1920;
+int picysize = 1056;
 
 
 # define __PRI64_PREFIX	"l"

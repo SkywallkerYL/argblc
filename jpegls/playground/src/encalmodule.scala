@@ -833,7 +833,7 @@ class RAMVERILOG extends BlackBox with HasBlackBoxInline with COMMON{
            |      input [1:0] awburst ;           
            |      output  wready  ;           
            |      input  wvalid  ;           
-           |      input  [7:0]wdata   ;           
+           |      input  [63:0]wdata   ;           
            |      input  [7:0] wstrb   ;           
            |      input  wlast   ;           
            |      input  bready  ;           
@@ -851,7 +851,7 @@ class RAMVERILOG extends BlackBox with HasBlackBoxInline with COMMON{
            |      output  rvalid  ;           
            |      output [3:0] rid     ;           
            |      output [1:0] rresp   ;           
-           |      output [7:0] rdata   ;           
+           |      output [63:0] rdata   ;           
            |      output  rlast   ;           
            |    
            |SRAMSIM sramsim_1(

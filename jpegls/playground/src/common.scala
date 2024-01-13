@@ -59,14 +59,28 @@ trait COMMON{
   val HEIGHT = 32 
   val WIDTH  = 32
   
+  // 压缩数据的文件头偏移
+  val HeaderSize = 24
+  // 文件压缩的tile信息偏移 
+  //val CompressOffset 
+  //文件头JLCD
+  //这里还要看一下  有一个大小端序的问题
+  val str = "JLCD"
+  val str1 = "x44434C4A"
+  // 使用Vec和Lit将字符串转换为UInt
+  //val uintValue = VecInit(str.map(c => (c.U(8.W)))).asUInt()
+
+  val headerJLCD = "x44434C4A"
+  //"x44434C4A".U(32.W)
   
+
   val PWITH = 16
 
   val BYTEWIDTH = 8
   //每8个bit占用的地址数 即一个地址存8bit
   val ADDRADD   = 1
   //AXI PARAMETER
-  val AXIDATAWIDTH = 8 
+  val AXIDATAWIDTH = 64 
   val AXISTRBWIDTH = 8
   val AXIADDRWIDTH = 32
   val AXILENWIDTH  = 8
