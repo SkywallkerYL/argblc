@@ -457,6 +457,23 @@ class RunModedecoding extends Module with COMMON {
       RUNindex := 0.U 
       when(io.rcontrol.start){
         rundecodestate := initial 
+        AQ  := 0.S
+        BQ  := 0.S
+        BQ2 := 0.S
+        CQ  := 0.S
+        NQ  := 0.S
+        Qin := 0.S
+        Nn  := 0.S
+        Nn2 := 0.S
+        Px   := 0.S 
+        Ix   := 0.S 
+        Rx   := 0.S 
+        Errval := 0.S 
+        temp :=0.S
+        k := 0.S 
+        MErrval := 0.S  
+        EMErrval := 0.U
+        glimit := 0.S
         //Prex  := io.Px
         //AQ := io.infoin.A 
         //BQ := io.infoin.B 

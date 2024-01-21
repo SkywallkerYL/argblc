@@ -22,13 +22,18 @@ int main(int argc , char* argv[]) {
     encodetest(inFileName );
 	//encodetest();
 #elif TESTMODULE == 4
-	decodetest();
+    char const* compressedFileName = NULL;
+    compressedFileName = argv[2];
+    char const* outFileName = NULL;
+    outFileName = argv[3];
+    decodetest(compressedFileName,outFileName );
+	//decodetest();
 #elif TESTMODULE == 5
 	//compresstest();
 	char const* inFileName = NULL;
 	inFileName = argv[2];
 	compressfiletest(inFileName);
-#elif TESTMODULE == 6
+#elif TESTMODULE == 6 || TESTMODULE == 7
 	 int     func = 0;
 	char const* inFileName = NULL;
     char const* outFileName = NULL;
@@ -87,11 +92,13 @@ int main(int argc , char* argv[]) {
 
     if (func == 1) {
         // compress
-		encodetest(inFileName, outFileName);
-		//compressinC(inFileName, outFileName);
+		//encodetest(inFileName, outFileName);
+		compressinC(inFileName, outFileName);
         //unsigned char * comp = compressARGBfile(inFileName, outFileName);
     } else if (func == 2) {
         // decompress
+        decodetest(inFileName,outFileName);
+        //decompressinC(inFileName,outFileName);
         //ret = decompressARGB(inFileName, outFileName);
     }
     std::cout << "result = " << ret << std::endl;

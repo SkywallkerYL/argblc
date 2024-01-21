@@ -46,7 +46,7 @@ void sim_init(){
 #elif TESTMODULE == 6 
   top = new VcompressARGBfiletop;
 #elif TESTMODULE == 7 
-  top = new VDecoder2Col; 
+  top = new VdecompressARGBfiletop; 
 #elif TESTMODULE == 8
   top = new Vrsdecoder;
 #elif TESTMODULE == 9

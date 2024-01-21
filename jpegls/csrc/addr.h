@@ -24,6 +24,7 @@ unsigned char tiledata1[16*4];
 unsigned char picdata[3000*3000*4];
 unsigned char piccompress[3000*3000*4*5];
 unsigned char * compressedC;
+unsigned char * picdataC;
 bool difftestflag = 1;
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     //printf("addr:0x%016x data:0x%016x mask:0b%02b \n",waddr,wdata,wmask);
@@ -43,6 +44,8 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //piccompress[waddr-0x40000000] = (unsigned char)(wdata & 0xffull);
                 
         //printf("addr:0x%016x data:0x%016x mask:0b%02b \n",waddr,wdata,wmask);
+        //这个mask的功能不完善,当没有进行包含写文件信息的压缩仿真的时候,不要用mask,因为那个时候只会写一个byte
+        //但是chisel生成的Verilog出来的有问题,导致mask一直为0
         for (int i = 0; i < 8; i++)
         {
             //判断mask的i位是否为1,从地到高。
@@ -66,7 +69,18 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //        
         //}
         //piccompress[waddr-0x40000000] = (unsigned char)(wdata & 0xffull);
-    }
+    }else if (waddr >= 0x50000000 && waddr < 0x60000000){
+        picdata[waddr-0x50000000] = (unsigned char)(wdata & 0xffull);
+        //printf("wave:%d addr:0x%016x data:0x%02x  \n",wavecount,waddr,picdata[waddr-0x50000000]);
+        if(picdata[waddr-0x50000000] != picdataC[waddr-0x50000000]){
+            difftestflag = 0;
+            printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,picdata[waddr-0x50000000],picdataC[waddr-0x50000000]);
+       
+        }
+        //if(waddr == 0x50000090){
+        //     printf("wave:%d addr:0x%016x data:0x%02x\n",wavecount,waddr,picdata[waddr-0x50000000]);
+        //}
+    }  
     //for (char i = 0; i < 8; i++)
     //{
         //判断mask的i位是否为1,从地到高。
@@ -80,7 +94,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     
 }
 extern "C" void pmem_read(long long raddr, long long *rdata){
-    //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
+   //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
     if(raddr >= 0x80000000){
         *rdata = (long long) (unsigned char)coded[raddr-0x80000000];
     }else if (raddr < 0x10000000) {
@@ -92,8 +106,16 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     }else if (raddr >= 0x50000000 && raddr < 0x60000000){
         *rdata = (long long) (unsigned char)picdata[raddr-0x50000000];
         //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
+    }else if (raddr >= 0x40000000 && raddr < 0x50000000){
+        //注意一下读这个pic额,要读4个Byte.... 这里出错了  通过原来的方式写进取只剩一个Byte了
+        
+        *rdata = *(uint64_t *)(&piccompress[raddr-0x40000000]);
+        //long long dataread = 0;
+        //memcpy(&dataread, piccompress[raddr-0x40000000], 8);
+        ////(long long) (unsigned char)piccompress[raddr-0x40000000];
+        //*rdata = dataread;
+        //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
     }
-    
     //printf("addr:0x%016x data:%d read:%d\n",raddr,*rdata,data[raddr]);
 }
 
@@ -178,6 +200,66 @@ unsigned char * getpixdata(char const * inFileName,int * width, int * height){
     *width = widthin ;
     *height = heightin ; 
     return Filedata;
+}
+void getcompressbuffer(char const * compressedFileName,int * width, int * height,unsigned char * compressBuffer){
+    std::ifstream ifs;
+    ifs.open(compressedFileName, std::ios::binary | std::ios::in);
+
+    if (!ifs.is_open()) {
+        std::cout << "fail to open output file: " << compressedFileName << std::endl;
+        return ;
+    }
+    char readBuffer[1024];
+    // read "JLCD"
+    ifs.read(readBuffer, 24);
+    memcpy(compressBuffer,readBuffer,24);
+    if (strncmp(readBuffer, "JLCD", 4) != 0) {
+        ifs.close();
+        std::cout << "ERROR: INVALID tile file: " << compressedFileName << std::endl;
+        return ;
+    }
+
+    const int BYTES_PER_PIXEL = 4;
+    int imgWidth, imgHeight, tileWidth, tileHeight, tileCount;
+    // read image width
+    ifs.seekg(4);
+    ifs.read(reinterpret_cast<char*>(&imgWidth), 4);
+    ifs.read(reinterpret_cast<char*>(&imgHeight), 4);
+    ifs.read(reinterpret_cast<char*>(&tileWidth), 4);
+    ifs.read(reinterpret_cast<char*>(&tileHeight), 4);
+    ifs.read(reinterpret_cast<char*>(&tileCount), 4);
+    *width = imgWidth;
+    *height = imgHeight;
+    std::cout << "imgWidth = " << imgWidth 
+        << ", imgHeight = " << imgHeight
+        << ", tileWidth = " << tileWidth
+        << ", tileHeight = " << tileHeight
+        << std::endl;
+    int tileRowCount = imgHeight / tileHeight;
+    int tileColumnCount = imgWidth / tileWidth;
+    int tileDataStartPos = 24 + 8 * tileCount;
+    unsigned char* Compressin = compressBuffer + tileDataStartPos;
+    for (int row = 0; row < tileRowCount; row++) {
+        for (int col = 0; col < tileColumnCount; col++) {
+            int tileIndex = row * tileColumnCount + col;
+            int tileInfoOffset = 24 + 8 * tileIndex;
+            unsigned char* CompressHeader = compressBuffer + tileInfoOffset;
+            int tileDataOffset = 0;
+            int tileDataBytes = 0;
+            ifs.seekg(tileInfoOffset);
+            ifs.read(reinterpret_cast<char *>(&tileDataOffset), 4);
+            ifs.read(reinterpret_cast<char *>(&tileDataBytes), 4);
+			ifs.seekg(tileDataStartPos + tileDataOffset);
+            ifs.read(readBuffer, tileDataBytes);
+            memcpy(Compressin,readBuffer,tileDataBytes);
+            Compressin += tileDataBytes;
+            ifs.seekg(tileInfoOffset);
+            ifs.read(readBuffer, 8);
+            memcpy(CompressHeader,readBuffer,8);
+        }
+    }
+    ifs.close();
+    return ;
 }
 void writefile(char const * outFileName,unsigned char * compressionbuffer, int filesize){
     std::ofstream ofs;
@@ -290,4 +372,85 @@ void compressinC(char const * inFileName,char const * outFileName){
     unsigned char * compressed = compressARGBfile(pic, width, height,compressionsize);
     writefile(outFileName,compressed,* compressionsize);
 }
+
+
+/*
+* decompress tile data to ARGB data
+
+*/
+unsigned char *  decompressARGBfile(unsigned char *compressbuffer, int width, int  height,int tileWidth,int tileHeight,char const * outFileName,unsigned char * filetile) {
+    //int     width, height, nrChannels;
+    //unsigned char *data = getpixdata(inFileName,&width, &height);
+    int imgWidth = width;
+    int imgHeight = height;
+    int tileRowCount = height / tileHeight;
+    int tileColumnCount = width / tileWidth;
+    int tileCount = tileRowCount* tileColumnCount;
+    int tileDataStartPos = 24 + 8 * tileCount;
+    unsigned char *pDecompressedARGB = new unsigned char [imgWidth * imgHeight * 4];
+    unsigned char* CompressIn = compressbuffer;
+    unsigned char pTempDecompressionBuffer[1024];
+    char readBuffer[1024];
+    for (int row = 0; row < tileRowCount; row++) {
+        for (int col = 0; col < tileColumnCount; col++) {
+            int tileIndex = row * tileColumnCount + col;
+            int tileInfoOffset = 24 + 8 * tileIndex;
+            int tileDataOffset = 0;
+            int tileDataBytes = 0;
+            unsigned char* CompressInFo = CompressIn + tileInfoOffset;
+            memcpy(reinterpret_cast<char *>(&tileDataOffset),CompressInFo,4);
+            CompressInFo+=4;
+            memcpy(reinterpret_cast<char *>(&tileDataBytes),CompressInFo,4);
+            unsigned char* CompressPic = CompressIn+tileDataStartPos + tileDataOffset;
+            memcpy(readBuffer,CompressPic,tileDataBytes);
+            // decompress
+            //printf("originsize : %d\n", tileDataBytes);
+            //tile2argb((unsigned char*)readBuffer, tileDataBytes, pTempDecompressionBuffer);
+            jpeglsdecompress((unsigned char*)readBuffer,pTempDecompressionBuffer,tileDataBytes);
+            for (int i = 0; i < tileHeight; i++) {
+                for (int j = 0; j < tileWidth; j++) {
+                    int globalRow = row * tileHeight + i;
+                    int globalCol = col * tileWidth + j;
+                    int indexInTile = i * tileWidth + j;
+                    memcpy(&pDecompressedARGB[(globalRow * imgWidth + globalCol) * 4],
+                            &pTempDecompressionBuffer[indexInTile * 4],
+                            4);
+                }
+            }
+            //((0x90)/(tileHeight*tileWidth*4))
+            if(row ==-1 && col==-1){
+                
+                printf("tileinf:%x tiledataoffset:%x first byte:%x\n ",tileInfoOffset,tileDataOffset,readBuffer[0]);
+                printf("row:%d col:%d\n",row,col);
+                //pClr = pARGB;
+                for (int i = 0; i < tileWidth * tileHeight * 4 ; i ++) {
+		            //tiledata[i] = filetile[i];//(unsigned char)(rand() % 256);
+		            //if(i%sizex==0&&(i!=0)) printf("\n");
+                    filetile[i] =pTempDecompressionBuffer[i];
+		            //printf("%d ",pClr[i]);
+	            }
+                //printf("\n");
+                //return pDecompressedARGB;
+            }
+        }
+    }
+    //stbi_write_bmp(outFileName, width, height, STBI_rgb_alpha, reinterpret_cast<char const *>(pDecompressedARGB));
+
+    return pDecompressedARGB;
+}
+
+void decompressinC(char const * compressedFileName,char const * outFileName){
+    int     width, height, nrChannels;
+    unsigned char * compressBuffer = new unsigned char [3000 * 3000 * 4 *5];
+    
+    getcompressbuffer(compressedFileName,&width, &height,compressBuffer);
+    unsigned char* realcompbuffer = compressBuffer + 24;
+    unsigned char* filetile = new unsigned char [64];
+    unsigned char * Argb = decompressARGBfile(compressBuffer, width, height,4,4,outFileName,filetile);
+    delete[] compressBuffer;
+    stbi_write_bmp(outFileName, width, height, STBI_rgb_alpha, reinterpret_cast<char const *>(Argb));
+
+}
+
+
 #endif

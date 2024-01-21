@@ -40,7 +40,8 @@ doit:
 #jpeglsencodesimtop jpeglsdecodesimtop
 #tilecompresssimtop tiledecompresssimtop
 #compressARGBtop compressARGBfiletop
-TOP?=compressARGBfiletop
+# decompressARGBfiletop
+TOP?=decompressARGBfiletop
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top
@@ -134,8 +135,9 @@ FILENAME=$(SAMPLE)$(NUMBER)
 FILE_DIR =../jingjiawei/res/
 SRC=$(FILE_DIR)$(FILENAME)
 COMPRESS_DIR =../jingjiawei/build/
-MODEL=-en
-
+MODEL=-de
+#-en $(SRC).bmp $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)
+#-de $(COMPRESS_DIR)$(FILENAME) $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)de.bmp
 
 $(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
@@ -172,8 +174,8 @@ run:
 
 	@echo "-------------------RUN-------------------"
 	mkdir -p $(COMPRESS_DIR)
-	./obj_dir/V$(TOPNAMETEST) $(MODEL) $(SRC).bmp $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)
 
+	./obj_dir/V$(TOPNAMETEST) $(MODEL) $(COMPRESS_DIR)$(FILENAME) $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)de.bmp
 #gtkwave wave.vcd
 wave:
 	gtkwave wave.vcd
