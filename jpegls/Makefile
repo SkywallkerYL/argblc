@@ -40,8 +40,8 @@ doit:
 #jpeglsencodesimtop jpeglsdecodesimtop
 #tilecompresssimtop tiledecompresssimtop
 #compressARGBtop compressARGBfiletop
-# decompressARGBfiletop
-TOP?=decompressARGBfiletop
+# decompressARGBfiletop JpegIP
+TOP?=JpegIP
 TOPNAME?=$(TOP)
 TOPNAMETEST?=$(TOP)
 #FSM_m #keyboard_top #top
@@ -135,7 +135,7 @@ FILENAME=$(SAMPLE)$(NUMBER)
 FILE_DIR =../jingjiawei/res/
 SRC=$(FILE_DIR)$(FILENAME)
 COMPRESS_DIR =../jingjiawei/build/
-MODEL=-de
+MODEL=-en
 #-en $(SRC).bmp $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)
 #-de $(COMPRESS_DIR)$(FILENAME) $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)de.bmp
 
@@ -175,7 +175,7 @@ run:
 	@echo "-------------------RUN-------------------"
 	mkdir -p $(COMPRESS_DIR)
 
-	./obj_dir/V$(TOPNAMETEST) $(MODEL) $(COMPRESS_DIR)$(FILENAME) $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)de.bmp
+	./obj_dir/V$(TOPNAMETEST) $(MODEL) $(SRC).bmp $(COMPRESS_DIR)$(SAMPLE)$(NUMBER)
 #gtkwave wave.vcd
 wave:
 	gtkwave wave.vcd
@@ -186,6 +186,6 @@ wave:
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR)  perf.data perf.data.old perf.unfold perf.folded perf.svg
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd *.coe $(BUILD_DIR)  perf.data perf.data.old perf.unfold perf.folded perf.svg
 #git clean -fd
 .PHONY: default all clean run

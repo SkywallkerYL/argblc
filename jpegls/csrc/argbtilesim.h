@@ -403,12 +403,96 @@ void decodetest(char const * compressedFileName,char const * outFileName){
 	if(flag){
 		stbi_write_bmp(outFileName, width, height, STBI_rgb_alpha, reinterpret_cast<char const *>(picdata));
 	}
-	
-#if DECODETEST
-	
-
-#endif
 	//
+}
+#elif TESTMODULE == 8
+void fpgaSimulate(char const * inFileName,char const * outFileName){
+    int     width, height, nrChannels;
+    unsigned char *pic = getpixdata(inFileName,&width, &height);
+    int numRows = height;
+    int numCols = width;
+
+    // 构造 COE 文件名，包含行数和列数
+    std::string coeFileName = "output_" + std::to_string(numRows) + "x" + std::to_string(numCols) + ".coe";
+
+    // 打开 COE 文件以写入数据
+    std::ofstream coeFile(coeFileName);
+
+    if (coeFile.is_open()) {
+        // 写入 COE 文件头部
+        coeFile << "Memory_Initialization_Radix=16;\r\n";
+        coeFile << "Memory_Initialization_Vector=\r\n";
+
+        // 写入数据
+        for (size_t i = 0; i < numRows * numCols * 4; ++i) {
+            coeFile << std::hex << static_cast<int>(pic[i]);
+
+            // 添加逗号（除了最后一个元素）
+            if (i < numRows * numCols * 4 - 1) {
+                coeFile << ",";
+            }else{
+                coeFile << ";";
+            }
+
+            // 每行一个数据元素，换行
+            coeFile << "\r\n";
+        }
+
+        // 关闭 COE 文件
+        coeFile.close();
+
+        std::cout << "COE file created successfully: " << coeFileName << std::endl;
+    } else {
+        std::cerr << "Unable to open COE file: " << coeFileName << std::endl;
+    }
+	/*************压缩解压仿真****************/
+	int *size  = new int(sizeof(pic)/sizeof(unsigned char));
+	int originsize = *size ;
+	printf("width:%d height:%d\n", width,height);
+	//compress use C 
+	int *compressionsize = new int (0);
+	compressedC = compressARGBfile(pic, width, height,compressionsize);
+	unsigned char * compressed  = compressedC;
+	int compsize = *compressionsize;
+	// Verilog compress
+	//for (int i = 0; i < compsize ; i++){
+	//	tilecode[i] = compressed[i];
+	//}
+	for(int i = 0; i < width*height*4;i++){
+		picdata[i] = pic[i];
+	}
+	clockntimes(1);
+	//unsigned char * decomressed = (unsigned char *) malloc((originsize));   
+    //rledecompress(compressed,decomressed,*size);
+	//jlsdecode(0,4,4, compressed,decomressed);
+	top->io_control_start  = 1;
+	top->io_size_height = height;
+	top->io_size_widthh = width;
+	difftestflag = 1;
+	//clockntimes(100000);
+	while (!top->io_control_finish && difftestflag)
+	{
+		clockntimes(1);
+	}
+	bool flag = top->io_success;
+	printf("Verilog results wave:%d\n",wavecount);
+	if(flag){
+		const char extension[] = "Verilog.bmp";
+    
+    	// 计算新字符串的长度
+    	size_t newLength = std::strlen(outFileName) + std::strlen(extension);
+
+    	// 创建一个新的字符数组来存储新字符串
+    	char newFilename[newLength + 1];  // 加 1 用于存储字符串结束符 '\0'
+
+    	// 复制原始文件名到新数组
+    	std::strcpy(newFilename, outFileName);
+
+    	// 连接文件名和后缀
+   	 	std::strcat(newFilename, extension);
+
+		stbi_write_bmp(newFilename, width, height, STBI_rgb_alpha, reinterpret_cast<char const *>(picdedata));
+	}
 }
 
 #endif 

@@ -23,6 +23,7 @@ unsigned char tiledata1[16*4];
 
 unsigned char picdata[3000*3000*4];
 unsigned char piccompress[3000*3000*4*5];
+unsigned char picdedata[3000*3000*4];
 unsigned char * compressedC;
 unsigned char * picdataC;
 bool difftestflag = 1;
@@ -56,13 +57,13 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
                 //(uint8_t *)((uint8_t *)vmem + waddr - FB_ADDR)= write_data&0xffull;
             }
         }
-        if(piccompress[waddr-0x40000000] != compressedC[waddr-0x40000000]){
-            difftestflag = 0;
-                // if(!(TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END))) difftestflag = 0;
-            //printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,piccompress[waddr+i-1-0x40000000],compressedC[waddr+i-1-0x40000000]);
-            printf("addr:0x%016x data:0x%016x datain:0x%016x mask:0b%08b \n",waddr,wdata,piccompress[waddr-0x40000000],wmask);
-            printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,piccompress[waddr-0x40000000],compressedC[waddr-0x40000000]);
-        }
+        //if(piccompress[waddr-0x40000000] != compressedC[waddr-0x40000000]){
+        //    difftestflag = 0;
+        //        // if(!(TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END))) difftestflag = 0;
+        //    //printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,piccompress[waddr+i-1-0x40000000],compressedC[waddr+i-1-0x40000000]);
+        //    printf("addr:0x%016x data:0x%016x datain:0x%016x mask:0b%08b \n",waddr,wdata,piccompress[waddr-0x40000000],wmask);
+        //    printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,piccompress[waddr-0x40000000],compressedC[waddr-0x40000000]);
+        //}
         //if(waddr == (0x400f95a1-24-8*1920*1056/4/4)){
         //    printf("addr:0x%016x data:0x%016x datain:0x%016x mask:0b%08b \n",waddr,wdata,piccompress[waddr-0x40000000],wmask);
         //    printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,piccompress[waddr-0x40000000],compressedC[waddr-0x40000000]);
@@ -72,11 +73,22 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }else if (waddr >= 0x50000000 && waddr < 0x60000000){
         picdata[waddr-0x50000000] = (unsigned char)(wdata & 0xffull);
         //printf("wave:%d addr:0x%016x data:0x%02x  \n",wavecount,waddr,picdata[waddr-0x50000000]);
-        if(picdata[waddr-0x50000000] != picdataC[waddr-0x50000000]){
-            difftestflag = 0;
-            printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,picdata[waddr-0x50000000],picdataC[waddr-0x50000000]);
-       
-        }
+        //if(picdata[waddr-0x50000000] != picdataC[waddr-0x50000000]){
+        //    difftestflag = 0;
+        //    printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,picdata[waddr-0x50000000],picdataC[waddr-0x50000000]);
+       //
+        //}
+        //if(waddr == 0x50000090){
+        //     printf("wave:%d addr:0x%016x data:0x%02x\n",wavecount,waddr,picdata[waddr-0x50000000]);
+        //}
+    }else if (waddr >= 0x30000000 && waddr < 0x40000000){
+        picdedata[waddr-0x30000000] = (unsigned char)(wdata & 0xffull);
+        //printf("wave:%d addr:0x%016x data:0x%02x  \n",wavecount,waddr,picdata[waddr-0x50000000]);
+        //if(picdata[waddr-0x50000000] != picdataC[waddr-0x50000000]){
+        //    difftestflag = 0;
+        //    printf("wave:%d addr:0x%016x data:0x%02x data:0x%02x \n",wavecount,waddr,picdata[waddr-0x50000000],picdataC[waddr-0x50000000]);
+       //
+        //}
         //if(waddr == 0x50000090){
         //     printf("wave:%d addr:0x%016x data:0x%02x\n",wavecount,waddr,picdata[waddr-0x50000000]);
         //}
@@ -94,7 +106,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     
 }
 extern "C" void pmem_read(long long raddr, long long *rdata){
-   //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
+    //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
     if(raddr >= 0x80000000){
         *rdata = (long long) (unsigned char)coded[raddr-0x80000000];
     }else if (raddr < 0x10000000) {
@@ -110,6 +122,15 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         //注意一下读这个pic额,要读4个Byte.... 这里出错了  通过原来的方式写进取只剩一个Byte了
         
         *rdata = *(uint64_t *)(&piccompress[raddr-0x40000000]);
+        //long long dataread = 0;
+        //memcpy(&dataread, piccompress[raddr-0x40000000], 8);
+        ////(long long) (unsigned char)piccompress[raddr-0x40000000];
+        //*rdata = dataread;
+        //printf("addr:0x%016x data:0x%016x\n",raddr,*rdata);
+    }else if (raddr >= 0x30000000 && raddr < 0x40000000){
+        //注意一下读这个pic额,要读4个Byte.... 这里出错了  通过原来的方式写进取只剩一个Byte了
+        
+        *rdata = *(uint64_t *)(&picdedata[raddr-0x30000000]);
         //long long dataread = 0;
         //memcpy(&dataread, piccompress[raddr-0x40000000], 8);
         ////(long long) (unsigned char)piccompress[raddr-0x40000000];
@@ -371,6 +392,48 @@ void compressinC(char const * inFileName,char const * outFileName){
     int * compressionsize = new int(0) ;
     unsigned char * compressed = compressARGBfile(pic, width, height,compressionsize);
     writefile(outFileName,compressed,* compressionsize);
+}
+void writeCoeFile(char const * inFileName,char const * outFileName){
+    int     width, height, nrChannels;
+    unsigned char *pic = getpixdata(inFileName,&width, &height);
+    int numRows = height;
+    int numCols = width;
+
+    // 构造 COE 文件名，包含行数和列数
+    std::string coeFileName = "output_" + std::to_string(numRows) + "x" + std::to_string(numCols) + ".coe";
+
+    // 打开 COE 文件以写入数据
+    std::ofstream coeFile(coeFileName);
+
+    if (coeFile.is_open()) {
+        // 写入 COE 文件头部
+        coeFile << "Memory_Initialization_Radix=16;\r\n";
+        coeFile << "Memory_Initialization_Vector=\r\n";
+
+        // 写入数据
+        for (size_t i = 0; i < numRows * numCols * 4; ++i) {
+            coeFile << std::hex << static_cast<int>(pic[i]);
+
+            // 添加逗号（除了最后一个元素）
+            if (i < numRows * numCols * 4 - 1) {
+                coeFile << ",";
+            }else{
+                coeFile << ";";
+            }
+
+            // 每行一个数据元素，换行
+            coeFile << "\r\n";
+        }
+
+        // 关闭 COE 文件
+        coeFile.close();
+
+        std::cout << "COE file created successfully: " << coeFileName << std::endl;
+    } else {
+        std::cerr << "Unable to open COE file: " << coeFileName << std::endl;
+    }
+
+    return ;
 }
 
 

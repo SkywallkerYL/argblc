@@ -27,7 +27,7 @@
 #define LLR_INIT_TABLE 5
 
 
-#define TESTMODULE 7
+#define TESTMODULE 8
 #if TESTMODULE == 1
 // CheckNode Test 
 #include "Vjpeglsencodesimtop.h"
@@ -58,6 +58,10 @@ VcompressARGBfiletop* top;
 #include "VdecompressARGBfiletop.h"
 #include "VdecompressARGBfiletop___024root.h"
 VdecompressARGBfiletop* top;
+#elif TESTMODULE == 8
+#include "VJpegIP.h"
+#include "VJpegIP___024root.h"
+VJpegIP* top;
 #endif
 //#define DIFFTEST 
 

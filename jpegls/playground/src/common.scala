@@ -74,6 +74,8 @@ trait COMMON{
   //"x44434C4A".U(32.W)
   
 
+  val Fpga = true
+
   val PWITH = 16
 
   val BYTEWIDTH = 8

@@ -48,7 +48,7 @@ void sim_init(){
 #elif TESTMODULE == 7 
   top = new VdecompressARGBfiletop; 
 #elif TESTMODULE == 8
-  top = new Vrsdecoder;
+  top = new VJpegIP;
 #elif TESTMODULE == 9
   top = new Vrsdecodertop ;
 #elif TESTMODULE == 10 

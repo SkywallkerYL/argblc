@@ -64,9 +64,9 @@ module SRAMSIM(
                 else ReadNext = readwait;
             end 
             read: begin
-                if(Reglen!=ARLEN) begin
+                if(Reglen!=ARLEN || (!io_Sram_r_ready)) begin
                     ReadNext = read;
-                end
+                end 
                 else ReadNext = readwait;
             end
            default: ReadNext = readwait;
@@ -90,7 +90,7 @@ module SRAMSIM(
     
     assign io_Sram_ar_ready = ReadState == readwait;
     wire ReglenEn = (ReadState == readwait && io_Sram_ar_valid) 
-                 || (ReadState == read && io_Sram_r_valid);
+                 || (ReadState == read && io_Sram_r_valid&& io_Sram_r_ready) ;
     wire [7:0] RegLenIn = (ReadState == readwait && io_Sram_ar_valid) ? 0
                         : (ReadState == read && io_Sram_r_ready) ? Reglen+1 : Reglen;
     ysyx_22050550_Reg # (8,8'd0) RegLen (

@@ -33,7 +33,7 @@ int main(int argc , char* argv[]) {
 	char const* inFileName = NULL;
 	inFileName = argv[2];
 	compressfiletest(inFileName);
-#elif TESTMODULE == 6 || TESTMODULE == 7
+#elif TESTMODULE == 6 || TESTMODULE == 7 || TESTMODULE == 8 
 	 int     func = 0;
 	char const* inFileName = NULL;
     char const* outFileName = NULL;
@@ -93,11 +93,13 @@ int main(int argc , char* argv[]) {
     if (func == 1) {
         // compress
 		//encodetest(inFileName, outFileName);
-		compressinC(inFileName, outFileName);
+		//compressinC(inFileName, outFileName);
+        //writeCoeFile(inFileName,outFileName);
+        fpgaSimulate(inFileName,outFileName);
         //unsigned char * comp = compressARGBfile(inFileName, outFileName);
     } else if (func == 2) {
         // decompress
-        decodetest(inFileName,outFileName);
+        //decodetest(inFileName,outFileName);
         //decompressinC(inFileName,outFileName);
         //ret = decompressARGB(inFileName, outFileName);
     }
