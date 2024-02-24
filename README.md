@@ -55,7 +55,11 @@ NEAR是jpeg解压缩的参数，为0表示无损解压缩
 修改common.scala中的Fpga参数，当其为true时，可以生成用于上板验证的Verilog代码
 只是还要修改jpegls/playground/src/FpgaTest.scala中65 67 69行的rom ram的例化代码。进行不同的测试时，需要修改jpegls/Makefile中的TOP变量
 
-
+## FPGA资源消耗(包括一个解压模块和压缩模块以及三个调用IP的ROM)
+|   项目   | 使用的 LUT 数量 | 使用的 FF 数量 | 使用的 DSP 数量 |
+|:--------:|:----------------:|:--------------:|:----------------:|
+|   总计   |       28184        |      41470       |        21         |
+时钟频率100MHz
 To run Verilator Test:
 ```bash
 make run
