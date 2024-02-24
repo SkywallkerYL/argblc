@@ -72,7 +72,7 @@ VJpegIP* top;
 #define WAVE_END   765294
 
 #define TRACE_CONDITION(a,begin,end) ((a>=begin)&&(a<end))
-int wavecount = 0 ;
+long long  wavecount = 0 ;
 
 
 int picxsize = 1920;

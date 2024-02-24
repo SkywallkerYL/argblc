@@ -62,11 +62,11 @@ class JpegIP extends Module with COMMON {
   //对于COMPRESS 模块  他读图片只会用到读通道 
   //写数据指挥用到写通道 就一个AXI口
   //所以这里直接一个连接就行 只是在顶层用的时候改一下
-  val RomAxi = Module(new RomwithIP)
+  val RomAxi = Module(new ramtop)
   //if(Fpga) Module(new  RomwithIP) else Module(new ramtop)
-  val CompressRamAxi = Module(new RomwithIP)
+  val CompressRamAxi = Module(new ramtop)
   //if(FPGATEST) Module(new  RamwithIP) else Module(new ramtop)
-  val DecompressRamAxi = Module(new RomwithIP)
+  val DecompressRamAxi = Module(new ramtop)
   //if(FPGATEST) Module(new  RamwithIP) else Module(new ramtop)
 
 

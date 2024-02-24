@@ -475,7 +475,7 @@ void fpgaSimulate(char const * inFileName,char const * outFileName){
 		clockntimes(1);
 	}
 	bool flag = top->io_success;
-	printf("Verilog results wave:%d\n",wavecount);
+	printf("Verilog results wave:%lld\n",wavecount);
 	if(flag){
 		const char extension[] = "Verilog.bmp";
     

@@ -17,8 +17,8 @@ trait COMMON{
   val NEAR = 0
   val RESET = 64
   val MAXVAL = 255
-  val X_SIZE = 4
-  val Y_SIZE = 4
+  val X_SIZE = 8
+  val Y_SIZE = 8
   val MIN_C = -128
   val MAX_C = 127
 
@@ -74,7 +74,7 @@ trait COMMON{
   //"x44434C4A".U(32.W)
   
 
-  val Fpga = true
+  val Fpga = false
 
   val PWITH = 16
 
